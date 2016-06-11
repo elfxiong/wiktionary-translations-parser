@@ -3,7 +3,12 @@ import re
 from bs4 import BeautifulSoup, Tag
 import requests
 
+tested_url = ["https://ja.wiktionary.org/wiki/%E3%81%AA%E3%81%84",
+              "https://ja.wiktionary.org/wiki/%E9%81%BA%E4%BC%9D%E5%AD%90"
+              ]
+
 HEADING_TAG = re.compile(r'^h(?P<level>[1-6])$', re.I)
+COMMA_OR_SEMICOLON = re.compile('[,;]')
 
 
 def get_heading_level(tag):
@@ -27,8 +32,8 @@ def get_heading_text(tag):
     return text
 
 
-def get_html_tree():
-    html = requests.get("https://ja.wiktionary.org/wiki/%E9%81%BA%E4%BC%9D%E5%AD%90")
+def get_html_tree(url):
+    html = requests.get(url)
     # print(html.content)
     soup = BeautifulSoup(html.content, 'html.parser')
     return soup
@@ -49,22 +54,43 @@ def get_html_tree():
 
 def parse_translation_table(table):
     """
-    Parse the table to get translations and the languages
+    Parse the table to get translations and the languages.
+    Hopefully this function will work for all editions.
     :param table: a Tag object of <table>.
-    :return: tuple (translation, translation_lang)
+    :return: (translation, language_name, language_code)
     """
     for li in table.find_all('li'):
-        translation = li.find('a').get_text()
-        translation_lang = li.get_text().split(':')[0]
-        yield (translation, translation_lang)
+        if not isinstance(li, Tag):
+            continue
+        text = li.get_text().split(':')
+
+        # language name is before ":"
+        lang_name = text[0]
+
+        # language code is in super script
+        lang_code = li.find("sup")
+        if lang_code:
+            lang_code = lang_code.text.strip()[1:-1]
+        else:
+            lang_code = ""
+
+        # each "trans" is: translation <sup>(lang_code)</sup> (transliteration)
+        # lang_code and transliteration may not exist
+        trans_list = re.split(COMMA_OR_SEMICOLON, text[1])
+        for trans in trans_list:
+            translation = trans.split('(')[0].strip()
+            yield (translation, lang_name, lang_code)
 
 
 def generate_translation_tuples(soup):
     """
     A generator of translation tuples
     :param soup: BeautifulSoup object
-    :return: tuple of the form (headword, headword_lang, translation, translation_lang, part_of_speech)
+    :return: tuple of the form (headword, head_lang, translation, trans_lang, trans_lang_code, part_of_speech)
     """
+
+    # START non-edition-specific
+    # this is the table of content which is present in each edition
     toc = soup.find('div', id='toc')
     # print(toc.get_text())
     page_state = {'headword': None,
@@ -73,6 +99,7 @@ def generate_translation_tuples(soup):
     for element in toc.next_siblings:
         if isinstance(element, Tag):  # it could be a Tag or a NavigableString
             level = get_heading_level(element.name)
+            # END non-edition-specific
             if level == 2:  # it is a header tag
                 page_state['headword_lang'] = get_heading_text(element)
             elif level == 3:
@@ -85,15 +112,16 @@ def generate_translation_tuples(soup):
             elif element.name == "table":
                 if "translations" in element['class']:
                     # this is an translation table
-                    for translation, lang in parse_translation_table(element):
-                        yield (page_state['headword'], page_state['headword_lang'], translation, lang,
+                    for translation, lang, lang_code in parse_translation_table(element):
+                        yield (page_state['headword'], page_state['headword_lang'], translation, lang, lang_code,
                                page_state['part_of_speech'])
 
 
 def main():
-    soup = get_html_tree()
-    for tup in generate_translation_tuples(soup):
-        print(",".join(tup))
+    for url in tested_url:
+        soup = get_html_tree(url)
+        for tup in generate_translation_tuples(soup):
+            print(",".join(tup))
 
 
 if __name__ == '__main__':
