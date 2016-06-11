@@ -48,13 +48,23 @@ def get_html_tree():
 
 
 def parse_translation_table(table):
+    """
+    Parse the table to get translations and the languages
+    :param table: a Tag object of <table>.
+    :return: tuple (translation, translation_lang)
+    """
     for li in table.find_all('li'):
         translation = li.find('a').get_text()
         translation_lang = li.get_text().split(':')[0]
         yield (translation, translation_lang)
 
 
-def find_languages(soup):
+def generate_translation_tuples(soup):
+    """
+    A generator of translation tuples
+    :param soup: BeautifulSoup object
+    :return: tuple of the form (headword, headword_lang, translation, translation_lang, part_of_speech)
+    """
     toc = soup.find('div', id='toc')
     # print(toc.get_text())
     page_state = {'headword': None,
@@ -64,9 +74,9 @@ def find_languages(soup):
         if isinstance(element, Tag):  # it could be a Tag or a NavigableString
             level = get_heading_level(element.name)
             if level == 2:  # it is a header tag
-                page_state['headword_lang'] = element.get_text()
+                page_state['headword_lang'] = get_heading_text(element)
             elif level == 3:
-                page_state['part_of_speech'] = element.get_text()
+                page_state['part_of_speech'] = get_heading_text(element)
             elif element.name == "p":  # is a paragraph tag
                 bold_word = element.b
                 if bold_word:
@@ -76,14 +86,14 @@ def find_languages(soup):
                 if "translations" in element['class']:
                     # this is an translation table
                     for translation, lang in parse_translation_table(element):
-                        print(page_state['headword'], page_state['headword_lang'], translation, lang,
-                              page_state['part_of_speech'], sep=',')
+                        yield (page_state['headword'], page_state['headword_lang'], translation, lang,
+                               page_state['part_of_speech'])
 
 
 def main():
     soup = get_html_tree()
-    find_languages(soup)
-    pass
+    for tup in generate_translation_tuples(soup):
+        print(",".join(tup))
 
 
 if __name__ == '__main__':
