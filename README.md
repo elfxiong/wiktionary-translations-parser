@@ -22,6 +22,10 @@ Each translation tuple consists of these fields:
 
 The output is a `.csv` with these five columns.
 
+## Common
+
+The list of common things in different editions are listed in [common.md](common.md).
+
 ## Todo
 
 - Write parsers for two or three editions.
