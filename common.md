@@ -27,6 +27,10 @@ Many translation tables has this format:
 
 > LANGUAGE_NAME:[TRANSLATION]()<sup>[(CODE)]()</sup>, [TRANSLATION]()<sup>[(CODE)]()</sup>, ...
 
+#### Similarities
+- All the super scripts have class `extiw`.
+
+#### Differences
 - The links may or may not be there.
 - The language code may or may not be there.
 - There may be one or more translations per language.
