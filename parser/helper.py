@@ -7,6 +7,7 @@ from bs4 import BeautifulSoup, Tag
 
 HEADING_TAG = re.compile(r'^h(?P<level>[1-6])$', re.I)
 COMMA_OR_SEMICOLON = re.compile('[,;]')
+PARENTHESIS_WITH_TEXT = re.compile(r'\([^()]*\)')  # no nesting
 
 
 def get_heading_level(tag):
@@ -41,7 +42,7 @@ def parse_translation_table(table):
     """
     Parse the table to get translations and the languages.
     Hopefully this function will work for all editions.
-    :param table: a Tag object of <table>.
+    :param table: a Tag object. Not necessary a table; can be a div.
     :return: (translation, language_name, language_code)
     """
     for li in table.find_all('li'):
@@ -59,9 +60,34 @@ def parse_translation_table(table):
         else:
             lang_code = ""
 
+        # There are two functions that removes parentheses. Not sure which one to use.
+        t = remove_parenthesis(text[1])
+        trans_list = re.split(COMMA_OR_SEMICOLON, t)
         # each "trans" is: translation <sup>(lang_code)</sup> (transliteration)
         # lang_code and transliteration may not exist
-        trans_list = re.split(COMMA_OR_SEMICOLON, text[1])
         for trans in trans_list:
             translation = trans.split('(')[0].strip()
             yield (translation, lang_name, lang_code)
+
+
+def remove_parenthesis(string):
+    """Remove parentheses and text within them.
+    For nested parentheses, only the innermost one is removed.
+    """
+    return re.sub(PARENTHESIS_WITH_TEXT, '', string=string)
+
+
+def remove_parenthesis2(string):
+    """Remove parentheses and text within them.
+    For nested parentheses, removes the whole thing.
+    """
+    ret = ''
+    skip_c = 0
+    for c in string:
+        if c == '(':
+            skip_c += 1
+        elif c == ')' and skip_c > 0:
+            skip_c -= 1
+        elif skip_c == 0:
+            ret += c
+    return ret
