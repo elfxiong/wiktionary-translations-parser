@@ -23,6 +23,13 @@ Each translation tuple consists of these fields:
 
 The output is a `.csv` with these six columns.
 
+## Dependencies
+
+Use `pip install` to install. Install in a `virtualenv` as appropriate.
+
+- `beautifulsoup4`: used for parsing html.
+- `requests`: used to make http calls and fetch `.html` from the Intenet. Will eventually be removed as we will be dealing with locally stored files.
+
 ## Common
 
 The list of common things in different editions are listed in [common.md](common.md).
