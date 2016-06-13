@@ -10,6 +10,12 @@ COMMA_OR_SEMICOLON = re.compile('[,;]')
 PARENTHESIS_WITH_TEXT = re.compile(r'\([^()]*\)')  # no nesting
 
 
+def get_edition_from_url(url):
+    print(url)
+    result = re.match(r'.*//(?P<edition>\w{2,3})\..+', url)
+    return result.group('edition')
+
+
 def get_heading_level(tag):
     """If the tag is a heading tag, return its level (1 through 6).
     Otherwise, return `None`."""

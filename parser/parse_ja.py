@@ -1,17 +1,18 @@
 from bs4 import Tag
-from parser.helper import get_heading_level, get_heading_text, get_html_tree, parse_translation_table
+from .helper import get_heading_level, get_heading_text, parse_translation_table
 
 tested_url = [
     "https://ja.wiktionary.org/wiki/%E3%81%AA%E3%81%84",
     "https://ja.wiktionary.org/wiki/%E9%81%BA%E4%BC%9D%E5%AD%90"
 ]
+edition = "ja"
 
 
 def generate_translation_tuples(soup):
     """
     A generator of translation tuples
     :param soup: BeautifulSoup object
-    :return: tuple of the form (headword, head_lang, translation, trans_lang, trans_lang_code, part_of_speech)
+    :return: tuple of the form (edition, headword, head_lang, translation, trans_lang, trans_lang_code, part_of_speech)
     """
 
     # START non-edition-specific
@@ -38,16 +39,6 @@ def generate_translation_tuples(soup):
                 if "translations" in element['class']:
                     # this is an translation table
                     for translation, lang, lang_code in parse_translation_table(element):
-                        yield (page_state['headword'], page_state['headword_lang'], translation, lang, lang_code,
-                               page_state['part_of_speech'])
-
-
-def main():
-    for url in tested_url:
-        soup = get_html_tree(url)
-        for tup in generate_translation_tuples(soup):
-            print(",".join(tup))
-
-
-if __name__ == '__main__':
-    main()
+                        yield (
+                            edition, page_state['headword'], page_state['headword_lang'], translation, lang, lang_code,
+                            page_state['part_of_speech'])

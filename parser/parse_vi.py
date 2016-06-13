@@ -1,17 +1,18 @@
 from bs4 import Tag
-from parser.helper import get_heading_level, get_heading_text, get_html_tree, parse_translation_table
+from .helper import get_heading_level, get_heading_text, parse_translation_table
 
 tested_url = [
     "https://vi.wiktionary.org/wiki/kh%C3%B4ng#Ti.E1.BA.BFng_Vi.E1.BB.87t",
     "https://vi.wiktionary.org/wiki/c%C3%A1m_%C6%A1n#Ti.E1.BA.BFng_Vi.E1.BB.87t",
 ]
+edition = "vi"
 
 
 def generate_translation_tuples(soup):
     """
     A generator of translation tuples
     :param soup: BeautifulSoup object
-    :return: tuple of the form (headword, head_lang, translation, trans_lang, trans_lang_code, part_of_speech)
+    :return: tuple of the form (edition, headword, head_lang, translation, trans_lang, trans_lang_code, part_of_speech)
     """
 
     # START non-edition-specific
@@ -40,16 +41,6 @@ def generate_translation_tuples(soup):
                     # this is an translation table
                     table = element.find_next_sibling(class_="columns")
                     for translation, lang, lang_code in parse_translation_table(table):
-                        yield (page_state['headword'], page_state['headword_lang'], translation, lang, lang_code,
-                               page_state['part_of_speech'])
-
-
-def main():
-    for url in tested_url:
-        soup = get_html_tree(url)
-        for tup in generate_translation_tuples(soup):
-            print(",".join(tup))
-
-
-if __name__ == '__main__':
-    main()
+                        yield (
+                            edition, page_state['headword'], page_state['headword_lang'], translation, lang, lang_code,
+                            page_state['part_of_speech'])
