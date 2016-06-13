@@ -2,9 +2,9 @@
 
 To keep track of common things in different Wiktionary editions that we can utilize to produce the "general" parser.
 
-## TOC
+## #mw-content-text
 
-The table of content part is pretty consistent across different language editions.
+~~The table of content part is pretty consistent across different language editions.~~ Not every page has a table of content. Use `id="mw-content-text"` and iterater over its children instead.
 
 ```
 <div id=”mw-content-text” class="mw-content-ltr">
