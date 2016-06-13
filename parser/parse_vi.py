@@ -5,7 +5,7 @@ from helper import get_heading_level, get_heading_text, get_html_tree, parse_tra
 
 tested_url = [
     "https://vi.wiktionary.org/wiki/kh%C3%B4ng#Ti.E1.BA.BFng_Vi.E1.BB.87t",
-    "https://vi.wiktionary.org/wiki/c%C3%A1m_%C6%A1n#Ti.E1.BA.BFng_Vi.E1.BB.87t",
+    "https://vi.wiktionary.org/wiki/c%C3%A1m_%C6%A1n#Ti.E1.BA.BFng_Vi.E1.BB.87t"
 ]
 edition = "vi"
 
@@ -56,3 +56,14 @@ def generate_translation_tuples(soup):
                         page_state['part_of_speech'])
             else:
                 page_state['translation_region'] = False
+
+
+def main():
+    for url in tested_url:
+        soup = get_html_tree(url)
+        for tup in generate_translation_tuples(soup):
+            print(",".join(tup))
+
+
+if __name__ == '__main__':
+    main()

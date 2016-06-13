@@ -50,3 +50,14 @@ def generate_translation_tuples(soup):
                             page_state['part_of_speech'])
             else:
                 page_state['translation_region'] = False
+
+
+def main():
+    for url in tested_url:
+        soup = get_html_tree(url)
+        for tup in generate_translation_tuples(soup):
+            print(",".join(tup))
+
+
+if __name__ == '__main__':
+    main()
