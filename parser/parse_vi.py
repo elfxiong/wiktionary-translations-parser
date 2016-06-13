@@ -1,5 +1,7 @@
+# -*- coding: utf-8 -*-
+
 from bs4 import Tag
-from .helper import get_heading_level, get_heading_text, parse_translation_table
+from helper import get_heading_level, get_heading_text, get_html_tree, parse_translation_table
 
 tested_url = [
     "https://vi.wiktionary.org/wiki/kh%C3%B4ng#Ti.E1.BA.BFng_Vi.E1.BB.87t",
@@ -37,7 +39,7 @@ def generate_translation_tuples(soup):
                     # print("headword: ", bold_word.get_text().strip())
             elif element.name == "h4":
                 first_headline = element.find(class_="mw-headline")
-                if first_headline.text.strip() == "Dịch":  # this translation header
+                if first_headline.text.strip() == u"Dịch":  # this translation header
                     # this is an translation table
                     table = element.find_next_sibling(class_="columns")
                     for translation, lang, lang_code in parse_translation_table(table):
