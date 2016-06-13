@@ -11,7 +11,7 @@ PARENTHESIS_WITH_TEXT = re.compile(r'\([^()]*\)')  # no nesting
 
 
 def get_edition_from_url(url):
-    print(url)
+    # print(url)
     result = re.match(r'.*//(?P<edition>\w{2,3})\..+', url)
     return result.group('edition')
 

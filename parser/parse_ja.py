@@ -17,13 +17,13 @@ def generate_translation_tuples(soup):
 
     # START non-edition-specific
     # this is the table of content which is present in each edition
-    toc = soup.find('div', id='toc')
+    toc = soup.find('div', id='mw-content-text')
     # print(toc.get_text())
     page_state = {'headword': None,
                   'headword_lang': None,
                   'part_of_speech': None,
                   'translation_region': None}
-    for element in toc.next_siblings:
+    for element in toc.children:
         if isinstance(element, Tag):  # it could be a Tag or a NavigableString
             level = get_heading_level(element.name)
             # END non-edition-specific
