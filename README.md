@@ -14,6 +14,7 @@ For now, we are dealing with individual `.html` pages from the editions we're wo
 
 Each translation tuple consists of these fields:
 
+- `edition`: the edition of Wiktionary the translation pair is from. It is a 2-3 letter code used in the Wiktionary url.
 - `headword`: the word that is being translated.
 - `head_lang`: the language of the `headword`. It might be different from the language of the edition.
 - `translation`: the translation of the `headword`.
@@ -21,7 +22,7 @@ Each translation tuple consists of these fields:
 - `trans_lang_code`: the language code of `tranlation_lang`. This is the edition code used by Wiktionary, and it is [not from a single ISO standard](https://en.wiktionary.org/wiki/Wiktionary:Languages#Language_codes).
 - `pos`: the part of speech of the `headword` in `head_lang`.
 
-The output is a `.csv` with these six columns.
+The output is a `.csv` with these seven columns.
 
 ## Dependencies
 
