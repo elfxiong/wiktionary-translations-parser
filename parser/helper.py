@@ -37,11 +37,15 @@ def get_heading_text(tag):
     return text
 
 
-def get_html_tree(url):
+def get_html_tree_from_url(url):
     html = requests.get(url)
     # print(html.content)
     soup = BeautifulSoup(html.content, 'html.parser')
     return soup
+
+
+def get_html_tree_from_string(html):
+    return BeautifulSoup(html, 'html.parser')
 
 
 def parse_translation_table(table):
@@ -55,6 +59,11 @@ def parse_translation_table(table):
         if not isinstance(li, Tag):
             continue
         text = li.get_text().split(':')
+
+        # TBD: the table is not a translation table
+        #  OR the table is a translation table but there are some <li> without colon
+        if len(text) < 2:
+            continue
 
         # language name is before ":"
         lang_name = text[0]
@@ -107,6 +116,7 @@ def parse_translation_table_subscript(table):
             yield (translation, lang_name, lang_code)
     
 
+
 def parse_french_table(table):
     """
     Parse the table to get translations and the languages.
@@ -136,7 +146,7 @@ def parse_french_table(table):
         # lang_code and transliteration may not exist
         for trans in trans_list:
             translation = trans.split('(')[0].strip()
-            yield (translation, lang_name.strip()[0:-1], lang_code)
+            yield (translation, lang_name.strip(), lang_code)
 
 
 def remove_parenthesis(string):

@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 
 from bs4 import Tag
-from helper import get_heading_level, get_heading_text, get_html_tree, parse_translation_table, parse_french_table
+from .helper import get_heading_level, get_heading_text, get_html_tree_from_url, parse_translation_table, parse_french_table
 
 tested_url = [
     "https://fr.wiktionary.org/wiki/ouvrir",
-    "https://fr.wiktionary.org/wiki/amour"
+    "https://fr.wiktionary.org/wiki/amour",
 ]
 
 
@@ -23,6 +23,7 @@ def generate_translation_tuples(soup):
     page_state = {'headword': None,
                   'headword_lang': None,
                   'part_of_speech': None}
+    edition = "fr"
     for element in toc.children:
         if isinstance(element, Tag):  # it could be a Tag or a NavigableString
             level = get_heading_level(element.name)
@@ -40,14 +41,18 @@ def generate_translation_tuples(soup):
                 first_headline = element.find(class_="mw-headline")
                 if first_headline.text.strip() == "Traductions":  # this translation header
                     # this is a translation table
-                    table = element.find_next_sibling(class_="boite") 
-                    for translation, lang, lang_code in parse_french_table(table):
-                            yield (page_state['headword'], page_state['headword_lang'], translation, lang, lang_code, page_state['part_of_speech']) 
-
+                    while True:
+                        table = element.find_next_sibling()
+                        if table.has_attr("class") and "boite" in table.get("class"):
+                            for translation, lang, lang_code in parse_french_table(table):
+                                yield (edition, page_state['headword'], page_state['headword_lang'], translation, lang, lang_code, page_state['part_of_speech']) 
+                            element = table
+                        else:
+                            break
 
 def main():
     for url in tested_url:
-        soup = get_html_tree(url)
+        soup = get_html_tree_from_url(url)
         for tup in generate_translation_tuples(soup):
             print(",".join(tup))
 

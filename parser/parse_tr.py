@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 
-import re
 from bs4 import Tag
-from helper import get_heading_level, get_heading_text, get_html_tree, parse_translation_table
+from .helper import get_heading_level, get_heading_text, get_html_tree_from_url, parse_translation_table
 
 tested_url = [
     "https://tr.wiktionary.org/wiki/ev",
     "https://tr.wiktionary.org/wiki/abartmak",
 ]
 edition = "tr"
+
 
 def generate_translation_tuples(soup):
     """
@@ -51,11 +51,11 @@ def generate_translation_tuples(soup):
 
                 if bold_word.text == u"Türk Dilleri" and head == True:
                     translation_table = True
-                    
+
             elif translation_table:
 
                 for translation, lang, lang_code in parse_translation_table(element):
-                    
+
                     if len(translation.split()) >= 2:
                         translation = translation.split()[1]
                     translation = translation.strip('[#|]')
@@ -65,9 +65,10 @@ def generate_translation_tuples(soup):
                         page_state['part_of_speech'])
                 translation_table = False
 
+
 def main():
     for url in tested_url:
-        soup = get_html_tree(url)
+        soup = get_html_tree_from_url(url)
         for tup in generate_translation_tuples(soup):
             print(",".join(tup))
 

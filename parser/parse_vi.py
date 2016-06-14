@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from bs4 import Tag
-from helper import get_heading_level, get_heading_text, get_html_tree, parse_translation_table
+from .helper import get_heading_level, get_heading_text, get_html_tree_from_url, parse_translation_table
 
 tested_url = [
     "https://vi.wiktionary.org/wiki/kh%C3%B4ng#Ti.E1.BA.BFng_Vi.E1.BB.87t",
@@ -60,7 +60,7 @@ def generate_translation_tuples(soup):
 
 def main():
     for url in tested_url:
-        soup = get_html_tree(url)
+        soup = get_html_tree_from_url(url)
         for tup in generate_translation_tuples(soup):
             print(",".join(tup))
 

@@ -1,5 +1,5 @@
 from bs4 import Tag
-from helper import get_heading_level, get_heading_text, get_html_tree, parse_translation_table
+from .helper import get_heading_level, get_heading_text, get_html_tree_from_url, parse_translation_table
 
 tested_url = [
     "https://ja.wiktionary.org/wiki/%E3%81%AA%E3%81%84",
@@ -43,10 +43,13 @@ def generate_translation_tuples(soup):
                     page_state['translation_region'] = False
 
             elif element.name == "table":
-                if "translations" in element['class']:
+                # TBD
+                # if "translations" in element['class']:
+                if True:
                     for translation, lang, lang_code in parse_translation_table(element):
                         yield (
-                            edition, page_state['headword'], page_state['headword_lang'], translation, lang, lang_code,
+                            edition, page_state['headword'] or "NO_HEADWORD", page_state['headword_lang'], translation,
+                            lang, lang_code,
                             page_state['part_of_speech'])
             else:
                 page_state['translation_region'] = False
@@ -54,7 +57,7 @@ def generate_translation_tuples(soup):
 
 def main():
     for url in tested_url:
-        soup = get_html_tree(url)
+        soup = get_html_tree_from_url(url)
         for tup in generate_translation_tuples(soup):
             print(",".join(tup))
 
