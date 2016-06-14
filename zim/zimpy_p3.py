@@ -482,7 +482,6 @@ class ZimFile(object):
         metadata = {}
         for i in range(self.header['articleCount'] - 1, -1, -1):
             entry = self.read_directory_entry_by_index(i)
-            print(entry['namespace'])
             if entry['namespace'] == b'M':
                 m_name = entry['url']
                 # Lower case first letter to match kiwix-library names convention
