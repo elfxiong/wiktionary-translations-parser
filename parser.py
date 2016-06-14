@@ -42,11 +42,11 @@ def read_zim_file(file):
             yield (body.decode('utf-8'))
 
 
-def test_zim(filename):
+def test_zim(filename, edition=None):
     file = ZimFile(filename=filename)
     file.list_articles_by_url()
     edition_lang_code = file.metadata()['language'].decode('utf-8')
-    edition_wikt_code = languages.get_wikt_code_from_iso639_3(edition_lang_code)
+    edition_wikt_code = edition or languages.get_wikt_code_from_iso639_3(edition_lang_code)
     print(edition_wikt_code)
     if edition_wikt_code not in parsers:
         print("We don't have a parser for {}/{} language yet.".format(edition_lang_code, edition_wikt_code))
@@ -70,11 +70,12 @@ def test_html():
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--zim', '-z', help='use zim file instead of html.')
+    parser.add_argument('--zim', '-z', help='use zim file instead of html')
+    parser.add_argument('--edition', '-e', help='explicitly specify the language edition')
 
     args = parser.parse_args()
     if args.zim:
-        test_zim(args.zim)
+        test_zim(args.zim, args.edition)
     else:
         test_html()
 
