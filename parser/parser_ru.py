@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from bs4 import Tag
-from helper import get_heading_level, get_heading_text, get_html_tree, parse_translation_table_subscript, remove_parenthesis
+from helper import get_heading_level, get_heading_text, get_html_tree_from_url, parse_translation_table_subscript, remove_parenthesis
 
 
 tested_url = [
@@ -33,7 +33,7 @@ def generate_translation_tuples(soup):
             # END non-edition-specific
             if level == 1:  # in the Russian edition this always contains the language
                 page_state['headword_lang'] = get_heading_text(element)
-                #print(page_state['headword_lang'])
+                print(page_state['headword_lang'])
                 page_state['translation_region'] = False
             elif level == 2: # if this exists, it contains the headword + other junk
                 first_headline = element.find(class_='mw-headline')
@@ -43,13 +43,13 @@ def generate_translation_tuples(soup):
                 page_state['translation_region'] = False
             elif level == 3: # headword + part of speech, or just part of speech follow later
                 first_headline = element.find(class_='mw-headline')
-                if first_headline.text == 'Морфологические и синтаксические свойства':
-                    if not page_state['headword_lang'] == 'Русский':
+                if first_headline.text == u'Морфологические и синтаксические свойства':
+                    if not page_state['headword_lang'] == u'Русский':
                         page_state['pos_region'] = True
             elif level == 4: # might be a translation list (or synonyms / antonymes list)
-                if get_heading_text(element) == 'Значение':
+                if get_heading_text(element) == u'Значение':
                     page_state['translation_region'] = True
-                elif get_heading_text(element) == 'Перевод':
+                elif get_heading_text(element) == u'Перевод':
                     page_state['translation_region'] = True
             elif element.name == 'p' and page_state['pos_region']:
                 bold_word = element.b
@@ -58,11 +58,11 @@ def generate_translation_tuples(soup):
                     #print(page_state['headword'])
                 else: # this is a part of speech tag
                     page_state['part_of_speech'] = element.get_text()
-                    #print(page_state['part_of_speech'])
+                    print(page_state['part_of_speech'])
                     page_state['pos_region'] = False
             elif element.name == 'ol' and page_state['translation_region']:
                 for li in element.find_all('li'):
-                    text = li.get_text().split('◆')[0]
+                    text = li.get_text().split(u'◆')[0]
                     text = remove_parenthesis(text).split(',')
                     for translations in text:
                         yield (edition, page_state['headword'], page_state['headword_lang'], translations, 'Русский', 'ru',
@@ -76,8 +76,9 @@ def generate_translation_tuples(soup):
 
 def main():
     for url in tested_url:
-        soup = get_html_tree(url)
+        soup = get_html_tree_from_url(url)
         for tup in generate_translation_tuples(soup):
+            continue
             print(",".join(tup))
 
 
