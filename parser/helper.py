@@ -114,7 +114,7 @@ def parse_french_table(table):
         # lang_code and transliteration may not exist
         for trans in trans_list:
             translation = trans.split('(')[0].strip()
-            yield (translation, lang_name.strip()[0:-1], lang_code)
+            yield (translation, lang_name.strip(), lang_code)
 
 
 def remove_parenthesis(string):
