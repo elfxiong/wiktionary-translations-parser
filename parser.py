@@ -4,12 +4,12 @@ from parser.parse_tr import generate_translation_tuples as tr_parser
 
 from parser.helper import get_edition_from_url, get_html_tree_from_string, get_html_tree_from_url
 import sys
+import argparse
 
 if sys.version_info[0:3] >= (3, 0, 0):  # python 3 (tested)
     from zim.zimpy_p3 import ZimFile
 else:  # python 2 (not tested)
     from zim.zimpy_p2 import ZimFile
-
 
 tested_url = [
     "https://vi.wiktionary.org/wiki/kh%C3%B4ng#Ti.E1.BA.BFng_Vi.E1.BB.87t",
@@ -40,8 +40,8 @@ def read_zim_file(filename):
             yield (body.decode('utf-8'))
 
 
-def test_zim():
-    page_generator = read_zim_file("This is file path")
+def test_zim(filename):
+    page_generator = read_zim_file(filename)
     for page in page_generator:
         soup = get_html_tree_from_string(page)
         for tup in ja_parser(soup):
@@ -57,7 +57,14 @@ def test_html():
 
 
 def main():
-    test_html()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--zim', '-z', help='use zim file instead of html.')
+
+    args = parser.parse_args()
+    if args.zim:
+        test_zim(args.zim)
+    else:
+        test_html()
 
 
 if __name__ == '__main__':
