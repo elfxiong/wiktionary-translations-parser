@@ -3,11 +3,9 @@ The common methods in different editions
 """
 import re
 from bs4 import Tag
-from .helper import remove_parenthesis
+from .helper import remove_parenthesis, COMMA_OR_SEMICOLON
 
 HEADING_TAG = re.compile(r'^h(?P<level>[1-6])$', re.I)
-COMMA_OR_SEMICOLON = re.compile('[,;]')
-PARENTHESIS_WITH_TEXT = re.compile(r'\([^()]*\)')  # no nesting
 
 
 class GeneralParser:
