@@ -2,9 +2,8 @@
 The common methods in different editions
 """
 import re
-import requests
-from bs4 import BeautifulSoup, Tag
-from .helper import remove_parenthesis, remove_parenthesis2, infer_edition_from_url
+from bs4 import Tag
+from .helper import remove_parenthesis
 
 HEADING_TAG = re.compile(r'^h(?P<level>[1-6])$', re.I)
 COMMA_OR_SEMICOLON = re.compile('[,;]')
@@ -37,7 +36,7 @@ class GeneralParser:
     def parse_translation_table(self, table):
         """
         Parse the table to get translations and the languages.
-        Hopefully this function will work for all editions.
+        Hopefully this function will work for most editions. Override this method if needed.
         :param table: a Tag object. Not necessary a table; can be a div.
         :return: (translation, language_name, language_code)
         """
@@ -69,3 +68,7 @@ class GeneralParser:
             for trans in trans_list:
                 translation = trans.split('(')[0].strip()
                 yield (translation, lang_name, lang_code)
+
+    def generate_translation_tuples(self, soup):
+        """Subclasses should implement their own"""
+        raise NotImplementedError

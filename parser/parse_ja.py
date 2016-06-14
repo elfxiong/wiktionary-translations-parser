@@ -1,6 +1,6 @@
 from bs4 import Tag
 from parser.general import GeneralParser
-from parser.helper import get_heading_level, get_heading_text, get_html_tree_from_url, parse_translation_table
+from parser.helper import get_html_tree_from_url
 
 
 class JaParser(GeneralParser):
@@ -30,13 +30,13 @@ class JaParser(GeneralParser):
                       'translation_region': None}
         for element in toc.children:
             if isinstance(element, Tag):  # it could be a Tag or a NavigableString
-                level = get_heading_level(element.name)
+                level = self.get_heading_level(element.name)
                 # END non-edition-specific
                 if level == 2:  # it is a header tag
-                    page_state['headword_lang'] = get_heading_text(element)
+                    page_state['headword_lang'] = self.get_heading_text(element)
                     page_state['translation_region'] = False
                 elif level == 3:
-                    page_state['part_of_speech'] = get_heading_text(element)
+                    page_state['part_of_speech'] = self.get_heading_text(element)
                     page_state['translation_region'] = False
                 elif element.name == "p":  # is a paragraph tag
                     bold_word = element.b
@@ -51,7 +51,7 @@ class JaParser(GeneralParser):
                     # TBD
                     # if "translations" in element['class']:
                     if True:
-                        for translation, lang, lang_code in parse_translation_table(element):
+                        for translation, lang, lang_code in self.parse_translation_table(element):
                             yield (
                                 self.edition, page_state['headword'] or "NO_HEADWORD", page_state['headword_lang'],
                                 translation,
