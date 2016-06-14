@@ -31,6 +31,14 @@ Use `pip install` to install. Install in a `virtualenv` as appropriate.
 - `beautifulsoup4`: used for parsing html.
 - `requests`: used to make http calls and fetch `.html` from the Intenet. Will eventually be removed as we will be dealing with locally stored files.
 
+## Usage
+ 
+To run with a `.zim` file:
+
+    $ python parser.py -z [zimfile]
+
+- Support for using `.zim` file has only tested for `Python 3.5`. It is probably not working for `Python 2` at this moment.
+
 ## Common
 
 The list of common things in different editions are listed in [common.md](common.md).
