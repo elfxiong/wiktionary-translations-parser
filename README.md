@@ -26,10 +26,16 @@ The output is a `.csv` with these seven columns.
 
 ## Dependencies
 
-Use `pip install` to install. Install in a `virtualenv` as appropriate.
-
 - `beautifulsoup4`: used for parsing html.
 - `requests`: used to make http calls and fetch `.html` from the Intenet. Will eventually be removed as we will be dealing with locally stored files.
+- `pycountry` and `iso-639`: used for conversion between language codes.
+
+Install in a `virtualenv` as appropriate.
+To install all dependencies:
+
+    $ pip install -r requirements.txt
+
+To install one by one, use `pip install [PACKAGE NAME]`. 
 
 ## Usage
  
@@ -37,7 +43,18 @@ To run with a `.zim` file:
 
     $ python parser.py -z [zimfile]
 
-- Support for using `.zim` file has only tested for `Python 3.5`. It is probably not working for `Python 2` at this moment.
+- Support for using `.zim` file has only been tested for `Python 3.5`. It is probably not working for `Python 2` at this moment.
+
+Detailed usage:
+
+    usage: parser.py [-h] [--zim ZIM] [--edition EDITION]
+    optional arguments:
+      -h, --help            show this help message and exit
+      --zim ZIM, -z ZIM     use zim file instead of html
+      --edition EDITION, -e EDITION
+                            explicitly specify the language edition
+
+
 
 ## Common
 
