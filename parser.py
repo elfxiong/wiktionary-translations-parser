@@ -1,7 +1,12 @@
 from parser.parse_ja import generate_translation_tuples as ja_parser
 from parser.parse_vi import generate_translation_tuples as vi_parser
-from parser.helper import get_edition_from_url, get_html_tree
+from parser.helper import get_edition_from_url, get_html_tree_from_string, get_html_tree_from_url
+import sys
 
+if sys.version_info[0:3] >= (3, 0, 0):  # python 3 (tested)
+    from zim.zimpy_p3 import ZimFile
+else:  # python 2 (not tested)
+    from zim.zimpy_p2 import ZimFile
 
 tested_url = [
     "https://vi.wiktionary.org/wiki/kh%C3%B4ng#Ti.E1.BA.BFng_Vi.E1.BB.87t",
@@ -13,14 +18,41 @@ tested_url = [
 parsers = {'ja': ja_parser, 'vi': vi_parser}
 
 
-def main():
+def read_zim_file(filename):
+    file = ZimFile(filename=filename)
+    file.list_articles_by_url()
+    print(file.metadata()['description'].decode('utf-8'))
+    # we only need main articles. They are in namespace 'A'.
+    namespace = b'A'
+    for article in file.articles():
+        if article['namespace'] != namespace:
+            continue
+        body = file.get_article_by_index(
+            article['index'], follow_redirect=False)[0]
+        if not body:
+            continue
+        else:
+            yield (body.decode('utf-8'))
+
+
+def test_zim():
+    page_generator = read_zim_file("This is file path")
+    for page in page_generator:
+        soup = get_html_tree_from_string(page)
+        for tup in ja_parser(soup):
+            print(",".join(tup))
+
+
+def test_html():
     for url in tested_url:
         edition = get_edition_from_url(url)
-        # print(edition)
-        soup = get_html_tree(url)
-        print(edition)
+        soup = get_html_tree_from_url(url)
         for tup in parsers[edition](soup):
             print(",".join(tup))
+
+
+def main():
+    test_html()
 
 
 if __name__ == '__main__':

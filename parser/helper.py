@@ -37,11 +37,15 @@ def get_heading_text(tag):
     return text
 
 
-def get_html_tree(url):
+def get_html_tree_from_url(url):
     html = requests.get(url)
     # print(html.content)
     soup = BeautifulSoup(html.content, 'html.parser')
     return soup
+
+
+def get_html_tree_from_string(html):
+    return BeautifulSoup(html, 'html.parser')
 
 
 def parse_translation_table(table):
