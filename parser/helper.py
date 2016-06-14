@@ -74,6 +74,38 @@ def parse_translation_table(table):
         for trans in trans_list:
             translation = trans.split('(')[0].strip()
             yield (translation, lang_name, lang_code)
+            
+def parse_translation_table_subscript(table):
+    """
+    Parse the table to get translations and the languages.
+    Hopefully this function will work for all editions.
+    :param table: a Tag object. Not necessary a table; can be a div.
+    :return: (translation, language_name, language_code)
+    """
+    for li in table.find_all('li'):
+        if not isinstance(li, Tag):
+            continue
+        text = li.get_text().split(':')
+
+        # language name is before ":"
+        lang_name = text[0]
+
+        # language code is in super script
+        lang_code = li.find("sub")
+        if lang_code:
+            lang_code = lang_code.text.strip()[1:-1]
+        else:
+            lang_code = ""
+
+        # There are two functions that removes parentheses. Not sure which one to use.
+        t = remove_parenthesis(text[1])
+        trans_list = re.split(COMMA_OR_SEMICOLON, t)
+        # each "trans" is: translation <sup>(lang_code)</sup> (transliteration)
+        # lang_code and transliteration may not exist
+        for trans in trans_list:
+            translation = trans.split('(')[0].strip()
+            yield (translation, lang_name, lang_code)
+    
 
 def parse_french_table(table):
     """
