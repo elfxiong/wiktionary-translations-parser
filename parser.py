@@ -3,10 +3,10 @@ from parser.parse_vi import generate_translation_tuples as vi_parser
 from parser.parse_tr import generate_translation_tuples as tr_parser
 from parser.parse_fr import generate_translation_tuples as fr_parser
 
-from parser.helper import get_edition_from_url, get_html_tree_from_string, get_html_tree_from_url
 import sys
 import argparse
 import parser.lang_code_conversion as languages
+from parser.helper import infer_edition_from_url, get_html_tree_from_string, get_html_tree_from_url
 
 if sys.version_info[0:3] >= (3, 0, 0):  # python 3 (tested)
     from zim.zimpy_p3 import ZimFile
@@ -62,7 +62,7 @@ def test_zim(filename, edition=None):
 
 def test_html():
     for url in tested_url:
-        edition = get_edition_from_url(url)
+        edition = infer_edition_from_url(url)
         soup = get_html_tree_from_url(url)
         for tup in parsers[edition](soup):
             print(",".join(tup))
