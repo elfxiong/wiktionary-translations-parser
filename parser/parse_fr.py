@@ -23,6 +23,7 @@ def generate_translation_tuples(soup):
     page_state = {'headword': None,
                   'headword_lang': None,
                   'part_of_speech': None}
+    edition = "fr"
     for element in toc.children:
         if isinstance(element, Tag):  # it could be a Tag or a NavigableString
             level = get_heading_level(element.name)
@@ -42,7 +43,7 @@ def generate_translation_tuples(soup):
                     # this is a translation table
                     table = element.find_next_sibling(class_="boite") 
                     for translation, lang, lang_code in parse_french_table(table):
-                            yield (page_state['headword'], page_state['headword_lang'], translation, lang, lang_code, page_state['part_of_speech']) 
+                            yield (edition, page_state['headword'], page_state['headword_lang'], translation, lang, lang_code, page_state['part_of_speech']) 
 
 
 def main():
