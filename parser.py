@@ -1,11 +1,6 @@
-from parser.parse_ja import generate_translation_tuples as ja_parser
-from parser.parse_vi import generate_translation_tuples as vi_parser
-from parser.parse_tr import generate_translation_tuples as tr_parser
-from parser.parse_fr import generate_translation_tuples as fr_parser
-
-import sys
 import argparse
-import parser.lang_code_conversion as languages
+import sys
+
 from parser.helper import infer_edition_from_url, get_html_tree_from_string, get_html_tree_from_url
 
 if sys.version_info[0:3] >= (3, 0, 0):  # python 3 (tested)
@@ -13,18 +8,18 @@ if sys.version_info[0:3] >= (3, 0, 0):  # python 3 (tested)
 else:  # python 2 (not tested)
     from zim.zimpy_p2 import ZimFile
 
-tested_url = [
-    "https://vi.wiktionary.org/wiki/kh%C3%B4ng#Ti.E1.BA.BFng_Vi.E1.BB.87t",
-    "https://vi.wiktionary.org/wiki/c%C3%A1m_%C6%A1n#Ti.E1.BA.BFng_Vi.E1.BB.87t",
-    "https://ja.wiktionary.org/wiki/%E3%81%AA%E3%81%84",
-    "https://ja.wiktionary.org/wiki/%E9%81%BA%E4%BC%9D%E5%AD%90",
-    "https://tr.wiktionary.org/wiki/ev",
-    "https://tr.wiktionary.org/wiki/abartmak",
-    "https://fr.wiktionary.org/wiki/amour",
-    "https://fr.wiktionary.org/wiki/ouvrir",
-]
+parsers = {}
+tested_url = []
 
-parsers = {'ja': ja_parser, 'vi': vi_parser, 'tr': tr_parser, 'fr': fr_parser}
+
+def import_parsers():
+    parser_list = ['ja', 'vi', 'tr', 'fr']
+    import importlib
+    for parser_name in parser_list:
+        module_to_import = '.parse_' + parser_name
+        module = importlib.import_module(module_to_import, package='parser')
+        parsers[parser_name] = module.generate_translation_tuples
+        tested_url.extend(module.tested_url)
 
 
 def read_zim_file(file):
@@ -46,8 +41,13 @@ def test_zim(filename, edition=None):
     file = ZimFile(filename=filename)
     file.list_articles_by_url()
     edition_lang_code = file.metadata()['language'].decode('utf-8')
-    edition_wikt_code = edition or languages.get_wikt_code_from_iso639_3(edition_lang_code)
-    print(edition_wikt_code)
+
+    if edition:
+        edition_wikt_code = edition
+    else:
+        import parser.lang_code_conversion as languages
+        edition_wikt_code = languages.get_wikt_code_from_iso639_3(edition_lang_code)
+    # print(edition_wikt_code)
     if edition_wikt_code not in parsers:
         print("We don't have a parser for {}/{} language yet.".format(edition_lang_code, edition_wikt_code))
         return
@@ -69,6 +69,8 @@ def test_html():
 
 
 def main():
+    import_parsers()
+
     parser = argparse.ArgumentParser()
     parser.add_argument('--zim', '-z', help='use zim file instead of html')
     parser.add_argument('--edition', '-e', help='explicitly specify the language edition')
