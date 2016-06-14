@@ -43,10 +43,13 @@ def generate_translation_tuples(soup):
                     page_state['translation_region'] = False
 
             elif element.name == "table":
-                if "translations" in element['class']:
+                # TBD
+                # if "translations" in element['class']:
+                if True:
                     for translation, lang, lang_code in parse_translation_table(element):
                         yield (
-                            edition, page_state['headword'], page_state['headword_lang'], translation, lang, lang_code,
+                            edition, page_state['headword'] or "NO_HEADWORD", page_state['headword_lang'], translation,
+                            lang, lang_code,
                             page_state['part_of_speech'])
             else:
                 page_state['translation_region'] = False

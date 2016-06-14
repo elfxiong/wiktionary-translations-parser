@@ -60,6 +60,11 @@ def parse_translation_table(table):
             continue
         text = li.get_text().split(':')
 
+        # TBD: the table is not a translation table
+        #  OR the table is a translation table but there are some <li> without colon
+        if len(text) < 2:
+            continue
+
         # language name is before ":"
         lang_name = text[0]
 
@@ -78,6 +83,7 @@ def parse_translation_table(table):
         for trans in trans_list:
             translation = trans.split('(')[0].strip()
             yield (translation, lang_name, lang_code)
+
 
 def parse_french_table(table):
     """
