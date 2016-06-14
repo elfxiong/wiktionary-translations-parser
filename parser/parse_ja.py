@@ -4,13 +4,15 @@ from parser.helper import get_html_tree_from_url
 
 
 class JaParser(GeneralParser):
+    tested_url = [
+        "https://ja.wiktionary.org/wiki/%E3%81%AA%E3%81%84",
+        "https://ja.wiktionary.org/wiki/%E9%81%BA%E4%BC%9D%E5%AD%90"
+    ]
+
     def __init__(self):
         super(JaParser, self).__init__()
         self.edition = 'ja'
-        self.tested_url = [
-            "https://ja.wiktionary.org/wiki/%E3%81%AA%E3%81%84",
-            "https://ja.wiktionary.org/wiki/%E9%81%BA%E4%BC%9D%E5%AD%90"
-        ]
+
 
     # override the parent class method
     def generate_translation_tuples(self, soup):

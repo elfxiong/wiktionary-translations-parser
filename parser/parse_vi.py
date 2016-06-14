@@ -6,13 +6,14 @@ from .helper import get_html_tree_from_url
 
 
 class ViParser(GeneralParser):
+    tested_url = [
+        "https://vi.wiktionary.org/wiki/kh%C3%B4ng#Ti.E1.BA.BFng_Vi.E1.BB.87t",
+        "https://vi.wiktionary.org/wiki/c%C3%A1m_%C6%A1n#Ti.E1.BA.BFng_Vi.E1.BB.87t"
+    ]
+
     def __init__(self):
         super(ViParser, self).__init__()
         self.edition = 'vi'
-        self.tested_url = [
-            "https://vi.wiktionary.org/wiki/kh%C3%B4ng#Ti.E1.BA.BFng_Vi.E1.BB.87t",
-            "https://vi.wiktionary.org/wiki/c%C3%A1m_%C6%A1n#Ti.E1.BA.BFng_Vi.E1.BB.87t"
-        ]
 
     def generate_translation_tuples(self, soup):
         # START non-edition-specific

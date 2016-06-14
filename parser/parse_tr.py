@@ -6,13 +6,14 @@ from parser.helper import get_html_tree_from_url
 
 
 class TrParser(GeneralParser):
+    tested_url = [
+        "https://tr.wiktionary.org/wiki/ev",
+        "https://tr.wiktionary.org/wiki/abartmak",
+    ]
+    
     def __init__(self):
         super(TrParser, self).__init__()
         self.edition = 'tr'
-        self.tested_url = [
-            "https://tr.wiktionary.org/wiki/ev",
-            "https://tr.wiktionary.org/wiki/abartmak",
-        ]
 
     def generate_translation_tuples(self, soup):
         """

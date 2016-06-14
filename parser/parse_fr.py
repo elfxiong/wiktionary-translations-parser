@@ -7,13 +7,13 @@ from parser.helper import get_html_tree_from_url, remove_parenthesis, COMMA_OR_S
 
 
 class FrParser(GeneralParser):
+    tested_url = [
+        "https://fr.wiktionary.org/wiki/ouvrir",
+        "https://fr.wiktionary.org/wiki/amour",
+    ]
     def __init__(self):
         super(FrParser, self).__init__()
         self.edition = 'fr'
-        self.tested_url = [
-            "https://fr.wiktionary.org/wiki/ouvrir",
-            "https://fr.wiktionary.org/wiki/amour",
-        ]
 
     def generate_translation_tuples(self, soup):
         """ A generator of translation tuples
