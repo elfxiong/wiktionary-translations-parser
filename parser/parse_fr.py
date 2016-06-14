@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 
 from bs4 import Tag
-from helper import get_heading_level, get_heading_text, get_html_tree_from_url, parse_translation_table, parse_french_table
+from .helper import get_heading_level, get_heading_text, get_html_tree_from_url, parse_translation_table, parse_french_table
 
 tested_url = [
     "https://fr.wiktionary.org/wiki/ouvrir",
-    "https://fr.wiktionary.org/wiki/amour"
+    "https://fr.wiktionary.org/wiki/amour",
 ]
 
 

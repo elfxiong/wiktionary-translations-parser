@@ -63,8 +63,8 @@ The list of common things in different editions are listed in [common.md](common
 ## Todo
 
 - Write parsers for two or three editions.
+	- Run parsers on zim files (entire foreign editions of Wiktionary)
 - Generalize them and create a skeleton for writing other parsers.
-
   - make it so that we need minimal changes in order to parse another edition
-
 - Generate parsers for editions of interest.
+- Use translation scripts as base for derivation-table-parsing scripts.
