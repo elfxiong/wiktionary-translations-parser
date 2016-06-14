@@ -13,7 +13,7 @@ tested_url = []
 
 
 def import_parsers():
-    parser_list = ['tr', 'fr']
+    parser_list = ['tr']
     import importlib
     for parser_name in parser_list:
         module_to_import = '.parse_' + parser_name
