@@ -6,6 +6,7 @@ from parser.parse_fr import generate_translation_tuples as fr_parser
 from parser.helper import get_edition_from_url, get_html_tree_from_string, get_html_tree_from_url
 import sys
 import argparse
+import parser.lang_code_conversion as languages
 
 if sys.version_info[0:3] >= (3, 0, 0):  # python 3 (tested)
     from zim.zimpy_p3 import ZimFile
@@ -26,10 +27,8 @@ tested_url = [
 parsers = {'ja': ja_parser, 'vi': vi_parser, 'tr': tr_parser, 'fr': fr_parser}
 
 
-def read_zim_file(filename):
-    file = ZimFile(filename=filename)
-    file.list_articles_by_url()
-    print(file.metadata()['description'].decode('utf-8'))
+def read_zim_file(file):
+    # print(file.metadata())
     # we only need main articles. They are in namespace 'A'.
     namespace = b'A'
     for article in file.articles():
@@ -44,10 +43,20 @@ def read_zim_file(filename):
 
 
 def test_zim(filename):
-    page_generator = read_zim_file(filename)
+    file = ZimFile(filename=filename)
+    file.list_articles_by_url()
+    edition_lang_code = file.metadata()['language'].decode('utf-8')
+    edition_wikt_code = languages.get_wikt_code_from_iso639_3(edition_lang_code)
+    print(edition_wikt_code)
+    if edition_wikt_code not in parsers:
+        print("We don't have a parser for {}/{} language yet.".format(edition_lang_code, edition_wikt_code))
+        return
+    parser = parsers[edition_wikt_code]
+    page_generator = read_zim_file(file)
+
     for page in page_generator:
         soup = get_html_tree_from_string(page)
-        for tup in ja_parser(soup):
+        for tup in parser(soup):
             print(",".join(tup))
 
 
