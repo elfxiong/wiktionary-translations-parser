@@ -1,6 +1,7 @@
 from parser.parse_ja import generate_translation_tuples as ja_parser
 from parser.parse_vi import generate_translation_tuples as vi_parser
 from parser.parse_tr import generate_translation_tuples as tr_parser
+from parser.parse_fr import generate_translation_tuples as fr_parser
 
 from parser.helper import get_edition_from_url, get_html_tree_from_string, get_html_tree_from_url
 import sys
@@ -18,9 +19,11 @@ tested_url = [
     "https://ja.wiktionary.org/wiki/%E9%81%BA%E4%BC%9D%E5%AD%90",
     "https://tr.wiktionary.org/wiki/ev",
     "https://tr.wiktionary.org/wiki/abartmak",
+    "https://fr.wiktionary.org/wiki/amour",
+    "https://fr.wiktionary.org/wiki/ouvrir",
 ]
 
-parsers = {'ja': ja_parser, 'vi': vi_parser, 'tr': tr_parser}
+parsers = {'ja': ja_parser, 'vi': vi_parser, 'tr': tr_parser, 'fr': fr_parser}
 
 
 def read_zim_file(filename):

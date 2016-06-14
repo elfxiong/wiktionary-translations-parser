@@ -1,5 +1,5 @@
 from bs4 import Tag
-from helper import get_heading_level, get_heading_text, get_html_tree_from_url, parse_translation_table
+from .helper import get_heading_level, get_heading_text, get_html_tree_from_url, parse_translation_table
 
 tested_url = [
     "https://ja.wiktionary.org/wiki/%E3%81%AA%E3%81%84",

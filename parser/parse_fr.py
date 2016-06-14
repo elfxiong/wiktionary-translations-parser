@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from bs4 import Tag
-from helper import get_heading_level, get_heading_text, get_html_tree_from_url, parse_translation_table, parse_french_table
+from .helper import get_heading_level, get_heading_text, get_html_tree_from_url, parse_translation_table, parse_french_table
 
 tested_url = [
     "https://fr.wiktionary.org/wiki/ouvrir",
@@ -24,24 +24,29 @@ def generate_translation_tuples(soup):
                   'headword_lang': None,
                   'part_of_speech': None}
     edition = "fr"
+    trans = False   # checks if the current place is a translation region; grabs translations if so
     for element in toc.children:
         if isinstance(element, Tag):  # it could be a Tag or a NavigableString
             level = get_heading_level(element.name)
             # END non-edition-specific
             if level == 2:  # it is a header tag
                 page_state['headword_lang'] = get_heading_text(element)
+                trans = False
             elif level == 3:
                 page_state['part_of_speech'] = get_heading_text(element)
+                trans = False
             elif element.name == "p":  # is a paragraph tag
                 bold_word = element.b
                 if bold_word:
                     page_state['headword'] = bold_word.get_text()
                     # print("headword: ", bold_word.get_text().strip())
+                trans = False
             elif element.name == "h4":
                 first_headline = element.find(class_="mw-headline")
                 if first_headline.text.strip() == "Traductions":  # this translation header
                     # this is a translation table
                     table = element.find_next_sibling(class_="boite") 
+                    trans = True
                     for translation, lang, lang_code in parse_french_table(table):
                             yield (edition, page_state['headword'], page_state['headword_lang'], translation, lang, lang_code, page_state['part_of_speech']) 
 
