@@ -18,6 +18,7 @@ edition = "ru"
 COMMA_SEMI_PERIOD = re.compile('[,;.]')
 COMMA_OR_SEMICOLON = re.compile('[,;]')
 
+# parse through a translation table in the Russian edition of Wiktionary
 def parse_translation_table_russian(table):
     
     for li in table.find_all('li'):
@@ -44,6 +45,18 @@ def parse_translation_table_russian(table):
             if not translation == '':
                 yield (translation, lang_name, lang_code)
 
+# parse through an ordered list in the Russian edition of wiktionary                
+def parse_ordered_list_russian(olist):
+    
+    for li in olist.find_all('li'):
+        if not li.get_text() == '':
+            # format the text (specific to RU)
+            text = li.get_text().split(u'◆')[0]
+            text = remove_parenthesis(text)
+            text = re.split(COMMA_SEMI_PERIOD, text)
+            for translations in text:
+                yield translations
+
 def generate_translation_tuples(soup):
     """
     A generator of translation tuples
@@ -65,60 +78,55 @@ def generate_translation_tuples(soup):
                   'pos_region': False, # pos_region is specific to Russian
                   'translation_region': False}
     
-    #iterate through the childen of the table of contents to find translations              
+    # iterate through the childen of the table of contents to find translations              
     for element in toc.children:
-        if isinstance(element, Tag):  # it could be a Tag or a NavigableString
+        if isinstance(element, Tag):
             level = get_heading_level(element.name)
             
             # in the Russian edition, h1s always contain the language
             if level == 1: 
                 page_state['headword_lang'] = get_heading_text(element)
-                #print(page_state['headword_lang'])
                 page_state['translation_region'] = False
-            #elif level == 2: # if this exists, it contains the headword + other junk
-                #first_headline = element.find(class_='mw-headline')
-                #first_word = first_headline.text.split(' ')[0] # grabs the headword
-                #page_state['headword'] = first_word
-                #print(page_state['headword'])
-                #page_state['translation_region'] = False
-            elif level == 3: # headword + part of speech, or just part of speech follow later
+
+            # Grab the part of speech, always contained in a level 3
+            # sometimes the part of speech is preceded by headword
+            elif level == 3:
                 first_headline = element.find(class_='mw-headline')
                 if first_headline.text == u'Морфологические и синтаксические свойства':
-                    #if not page_state['headword_lang'] == u'Русский':
                     page_state['pos_region'] = True
                 elif first_headline.text == u'Перевод':
                     page_state['translation_region'] = True
                 else:
                     page_state['translation_region'] = False
-            elif level == 4: # might be a translation list (or synonyms / antonymes list)
+                    
+            # A level 4 might contain a translation list / paragraph
+            elif level == 4:
                 if get_heading_text(element) == u'Значение':
                     if not page_state['headword_lang'] == u'Русский':
                         page_state['translation_region'] = True
                 else:
                     page_state['translation_region'] = False
+                    
+            # grab the part of speech
             elif element.name == 'p' and page_state['pos_region']:
                 bold_word = element.b
-                if not bold_word: # this is a headword
-                    #page_state['headword'] = bold_word.get_text()
-                    #print(page_state['headword'])
-                    # this is a part of speech tag
+                if not bold_word: # if the word is not bold, it's the pos
                     page_state['part_of_speech'] = element.get_text().split(',')[0]
-                    #print(page_state['part_of_speech'])
                     page_state['pos_region'] = False
+                    
+            # parse through a paragraph to grab translations
             elif element.name == 'p' and page_state['translation_region']:
                 translation = element.get_text()
                 yield (edition, page_state['headword'], page_state['headword_lang'], translation.strip(),
                        u'Русский', 'ru', page_state['part_of_speech'])
+                       
+            # parse through an ordered list to grab translations
             elif element.name == 'ol' and page_state['translation_region']:
-                for li in element.find_all('li'):
-                    if not li.get_text() == '':
-                        text = li.get_text().split(u'◆')[0]
-                        text = remove_parenthesis(text)
-                        text = re.split(COMMA_SEMI_PERIOD, text)
-                        for translations in text:
-                            #print(translations)
-                            yield (edition, page_state['headword'], page_state['headword_lang'], translations.strip(),
-                                   u'Русский', 'ru', page_state['part_of_speech'])
+                for translation in parse_ordered_list_russian(element):
+                    yield (edition, page_state['headword'], page_state['headword_lang'], translation.strip(),
+                           u'Русский', 'ru', page_state['part_of_speech'])
+                                   
+            # parse through a table to grab translations
             elif element.name == 'table' and page_state['translation_region']:
                 for translation, lang, lang_code in parse_translation_table_russian(element):
                     yield (edition, page_state['headword'], page_state['headword_lang'], 
