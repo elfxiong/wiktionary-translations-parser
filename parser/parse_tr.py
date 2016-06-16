@@ -65,13 +65,11 @@ class TrParser(GeneralParser):
                         # NOTE: The translations that start with [1] [#Language] are just being put as the language
                         # even though no translation is actually available. So right now i throw those tuples out completely
                         # If we don't want that, just take out the if statement.
-                        if '[[' in translation:
-                            continue
-                        else:    
-                            translation = translation.strip('[#|]')
-                            yield (
-                                self.edition, page_state['headword'], page_state['headword_lang'], translation, lang,
-                                lang_code, page_state['part_of_speech'])
+ 
+                        translation = translation.strip('[#|]')
+                        yield (
+                            self.edition, page_state['headword'], page_state['headword_lang'], translation, lang,
+                            lang_code, page_state['part_of_speech'])
                     translation_table = False
 
 
