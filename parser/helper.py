@@ -84,7 +84,7 @@ def parse_translation_table(table):
             translation = trans.split('(')[0].strip()
             yield (translation, lang_name, lang_code)
             
-def parse_translation_table_subscript(table):
+def parse_translation_table_russian(table):
     """
     Parse the table to get translations and the languages.
     Hopefully this function will work for all editions.
@@ -98,22 +98,22 @@ def parse_translation_table_subscript(table):
 
         # language name is before ":"
         lang_name = text[0]
-
-        # language code is in super script
-        lang_code = li.find("sub")
-        if lang_code:
-            lang_code = lang_code.text.strip()[1:-1]
+    
+        if li.find("sub"):
+            lang_code = li.find("sub").get_text()
         else:
-            lang_code = ""
+            lang_code = ''
+            
+        lang_name = lang_name[:-len(lang_code)]
 
-        # There are two functions that removes parentheses. Not sure which one to use.
         t = remove_parenthesis(text[1])
         trans_list = re.split(COMMA_OR_SEMICOLON, t)
         # each "trans" is: translation <sup>(lang_code)</sup> (transliteration)
         # lang_code and transliteration may not exist
         for trans in trans_list:
             translation = trans.split('(')[0].strip()
-            yield (translation, lang_name, lang_code)
+            if not translation == '':
+                yield (translation, lang_name, lang_code)
     
 
 
