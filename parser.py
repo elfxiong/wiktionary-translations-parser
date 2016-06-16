@@ -6,13 +6,14 @@ from parser.parse_ja import JaParser
 from parser.parse_vi import ViParser
 from parser.parse_fr import FrParser
 from parser.parse_tr import TrParser
+from parser.parse_uz import UzParser
 
 if sys.version_info[0:3] >= (3, 0, 0):  # python 3 (tested)
     from zim.zimpy_p3 import ZimFile
 else:  # python 2 (not tested)
     from zim.zimpy_p2 import ZimFile
 
-parsers = {'ja': JaParser, 'tr': TrParser, 'fr': FrParser, 'vi': ViParser}
+parsers = {'ja': JaParser, 'tr': TrParser, 'fr': FrParser, 'vi': ViParser, 'uz': UzParser}
 
 
 # def import_parsers():
