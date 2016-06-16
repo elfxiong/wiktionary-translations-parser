@@ -84,7 +84,7 @@ def generate_translation_tuples(soup):
         if isinstance(element, Tag):
             level = get_heading_level(element.name)
             
-            # in the Russian edition, h1s always contain the language
+            # in the Russian edition, this always contain the language
             if level == 1: 
                 page_state['headword_lang'] = get_heading_text(element)
                 page_state['translation_region'] = False
