@@ -34,12 +34,13 @@ def parse_translation_table_russian(table):
         else:
             lang_code = ''
             
+        # remove the lang code from the lang name
         lang_name = lang_name[:-len(lang_code)]
 
+        # format the text
         t = remove_parenthesis(text[1])
         trans_list = re.split(COMMA_OR_SEMICOLON, t)
-        # each "trans" is: translation <sup>(lang_code)</sup> (transliteration)
-        # lang_code and transliteration may not exist
+
         for trans in trans_list:
             translation = trans.split('(')[0].strip()
             if not translation == '':
