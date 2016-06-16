@@ -65,6 +65,10 @@ class GeneralParser:
             # lang_code and transliteration may not exist
             for trans in trans_list:
                 translation = trans.split('(')[0].strip()
+                # Throw out tuples if they have '[['
+                if "[[" in translation:
+                    continue
+
                 yield (translation, lang_name, lang_code)
 
     def generate_translation_tuples(self, soup):

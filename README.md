@@ -38,8 +38,10 @@ To install all dependencies:
 To install one by one, use `pip install [PACKAGE NAME]`. 
 
 ## Usage
- 
-To run with a `.zim` file:
+
+### Run parser.py
+
+To run `parser.py` with a `.zim` file:
 
     $ python parser.py -z [zimfile]
 
@@ -54,7 +56,17 @@ Detailed usage:
       --edition EDITION, -e EDITION
                             explicitly specify the language edition
 
+### Test a single parser
 
+To test a single parser:
+
+    $ python -m parser.[FILENAME]
+
+For example, to test `parse_ja.py`:
+
+    $ python -m parser.parse_ja
+
+Notice there is no `.py` extension.
 
 ## Common
 

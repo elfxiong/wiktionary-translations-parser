@@ -48,125 +48,29 @@ def get_html_tree_from_string(html):
     return BeautifulSoup(html, 'html.parser')
 
 
-def parse_translation_table(table):
-    """
-    Parse the table to get translations and the languages.
-    Hopefully this function will work for all editions.
-    :param table: a Tag object. Not necessary a table; can be a div.
-    :return: (translation, language_name, language_code)
-    """
-    for li in table.find_all('li'):
-        if not isinstance(li, Tag):
-            continue
-        text = li.get_text().split(':')
-
-        # TBD: the table is not a translation table
-        #  OR the table is a translation table but there are some <li> without colon
-        if len(text) < 2:
-            continue
-
-        # language name is before ":"
-        lang_name = text[0]
-
-        # language code is in super script
-        lang_code = li.find("sup")
-        if lang_code:
-            lang_code = lang_code.text.strip()[1:-1]
-        else:
-            lang_code = ""
-
-        # There are two functions that removes parentheses. Not sure which one to use.
-        t = remove_parenthesis(text[1])
-        trans_list = re.split(COMMA_OR_SEMICOLON, t)
-        # each "trans" is: translation <sup>(lang_code)</sup> (transliteration)
-        # lang_code and transliteration may not exist
-        for trans in trans_list:
-            translation = trans.split('(')[0].strip()
-            yield (translation, lang_name, lang_code)
-            
-def parse_translation_table_russian(table):
-    """
-    Parse the table to get translations and the languages.
-    Hopefully this function will work for all editions.
-    :param table: a Tag object. Not necessary a table; can be a div.
-    :return: (translation, language_name, language_code)
-    """
-    for li in table.find_all('li'):
-        if not isinstance(li, Tag):
-            continue
-        text = li.get_text().split(':')
-
-        # language name is before ":"
-        lang_name = text[0]
-    
-        if li.find("sub"):
-            lang_code = li.find("sub").get_text()
-        else:
-            lang_code = ''
-            
-        lang_name = lang_name[:-len(lang_code)]
-
-        t = remove_parenthesis(text[1])
-        trans_list = re.split(COMMA_OR_SEMICOLON, t)
-        # each "trans" is: translation <sup>(lang_code)</sup> (transliteration)
-        # lang_code and transliteration may not exist
-        for trans in trans_list:
-            translation = trans.split('(')[0].strip()
-            if not translation == '':
-                yield (translation, lang_name, lang_code)
-    
-
-
-def parse_french_table(table):
-    """
-    Parse the table to get translations and the languages.
-    Hopefully this function will work for all editions.
-    :param table: a Tag object. Not necessary a table; can be a div.
-    :return: (translation, language_name, language_code)
-    """
-    for li in table.find_all('li'):
-        if not isinstance(li, Tag):
-            continue
-        text = li.get_text().split(':')
-
-        # language name is before ":"
-        lang_name = text[0]
-
-        # language code is in super script
-        lang_code = li.find(class_="trad-existe")
-        if lang_code:
-            lang_code = lang_code.text.strip()[1:-1]
-        else:
-            lang_code = ""
-
-        # There are two functions that removes parentheses. Not sure which one to use.
-        t = remove_parenthesis(text[1])
-        trans_list = re.split(COMMA_OR_SEMICOLON, t)
-        # each "trans" is: translation <sup>(lang_code)</sup> (transliteration)
-        # lang_code and transliteration may not exist
-        for trans in trans_list:
-            translation = trans.split('(')[0].strip()
-            yield (translation, lang_name.strip(), lang_code)
-
-
-def remove_parenthesis(string):
+def remove_parenthesis2(string):
     """Remove parentheses and text within them.
     For nested parentheses, only the innermost one is removed.
     """
     return re.sub(PARENTHESIS_WITH_TEXT, '', string=string)
 
 
-def remove_parenthesis2(string):
+def remove_parenthesis(string):
     """Remove parentheses and text within them.
     For nested parentheses, removes the whole thing.
     """
     ret = ''
-    skip_c = 0
-    for c in string:
-        if c == '(':
-            skip_c += 1
-        elif c == ')' and skip_c > 0:
-            skip_c -= 1
-        elif skip_c == 0:
-            ret += c
+    skip1c = 0
+    skip2c = 0
+    for i in string:
+        if i == '[':
+            skip1c += 1
+        elif i == '(':
+            skip2c += 1
+        elif i == ']' and skip1c > 0:
+            skip1c -= 1
+        elif i == ')' and skip2c > 0:
+            skip2c -= 1
+        elif skip1c == 0 and skip2c == 0:
+            ret += i
     return ret
