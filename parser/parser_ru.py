@@ -2,7 +2,7 @@
 
 import re
 from bs4 import Tag
-from helper import get_heading_level, get_heading_text, get_html_tree_from_url, parse_translation_table_russian, remove_parenthesis
+from helper import get_heading_level, get_heading_text, get_html_tree_from_url, remove_parenthesis
 
 
 tested_url = [
@@ -16,6 +16,33 @@ tested_url = [
 edition = "ru"
 
 COMMA_SEMI_PERIOD = re.compile('[,;.]')
+COMMA_OR_SEMICOLON = re.compile('[,;]')
+
+def parse_translation_table_russian(table):
+    
+    for li in table.find_all('li'):
+        if not isinstance(li, Tag):
+            continue
+        text = li.get_text().split(':')
+
+        # language name is before ":"
+        lang_name = text[0]
+    
+        if li.find("sub"):
+            lang_code = li.find("sub").get_text()
+        else:
+            lang_code = ''
+            
+        lang_name = lang_name[:-len(lang_code)]
+
+        t = remove_parenthesis(text[1])
+        trans_list = re.split(COMMA_OR_SEMICOLON, t)
+        # each "trans" is: translation <sup>(lang_code)</sup> (transliteration)
+        # lang_code and transliteration may not exist
+        for trans in trans_list:
+            translation = trans.split('(')[0].strip()
+            if not translation == '':
+                yield (translation, lang_name, lang_code)
 
 def generate_translation_tuples(soup):
     """
