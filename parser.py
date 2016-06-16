@@ -17,7 +17,6 @@ else:  # python 2 (not tested)
 parsers = {'ja': JaParser, 'tr': TrParser, 'fr': FrParser, 'vi': ViParser, 'ru': RuParser, 'uz': UzParser}
 
 
-
 # def import_parsers():
 #     import importlib
 #     for parser_name in parser_list:
@@ -43,7 +42,7 @@ def read_zim_file(file):
 
 def test_zim(filename, edition=None):
     file = ZimFile(filename=filename)
-    file.list_articles_by_url()
+    # file.list_articles_by_url()
     edition_lang_code = file.metadata()['language'].decode('utf-8')
 
     if edition:
