@@ -61,9 +61,12 @@ class UzParser(GeneralParser):
 
                     for translation, lang, lang_code in self.parse_translation_table(element):
                         
-                        yield (
-                            self.edition, page_state['headword'], page_state['headword_lang'], translation, lang,
-                            lang_code, page_state['part_of_speech'])
+                        if '[[#' in translation:
+                            continue
+                        else:    
+                            yield (
+                                self.edition, page_state['headword'], page_state['headword_lang'], translation, lang,
+                                lang_code, page_state['part_of_speech'])
                     translation_table = False
 
 

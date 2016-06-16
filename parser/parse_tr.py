@@ -63,12 +63,15 @@ class TrParser(GeneralParser):
                         if len(translation.split()) >= 2:
                             translation = translation.split()[1]
                         # NOTE: The translations that start with [1] [#Language] are just being put as the language
-                        # even though no translation is actually available. So it will map English to English instead
-                        # of English to Car. This can be changed easily but its how it works now.
-                        translation = translation.strip('[#|]')
-                        yield (
-                            self.edition, page_state['headword'], page_state['headword_lang'], translation, lang,
-                            lang_code, page_state['part_of_speech'])
+                        # even though no translation is actually available. So right now i throw those tuples out completely
+                        # If we don't want that, just take out the if statement.
+                        if '[[' in translation:
+                            continue
+                        else:    
+                            translation = translation.strip('[#|]')
+                            yield (
+                                self.edition, page_state['headword'], page_state['headword_lang'], translation, lang,
+                                lang_code, page_state['part_of_speech'])
                     translation_table = False
 
 
