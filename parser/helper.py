@@ -48,24 +48,29 @@ def get_html_tree_from_string(html):
     return BeautifulSoup(html, 'html.parser')
 
 
-def remove_parenthesis(string):
+def remove_parenthesis2(string):
     """Remove parentheses and text within them.
     For nested parentheses, only the innermost one is removed.
     """
     return re.sub(PARENTHESIS_WITH_TEXT, '', string=string)
 
 
-def remove_parenthesis2(string):
+def remove_parenthesis(string):
     """Remove parentheses and text within them.
     For nested parentheses, removes the whole thing.
     """
     ret = ''
-    skip_c = 0
-    for c in string:
-        if c == '(':
-            skip_c += 1
-        elif c == ')' and skip_c > 0:
-            skip_c -= 1
-        elif skip_c == 0:
-            ret += c
+    skip1c = 0
+    skip2c = 0
+    for i in string:
+        if i == '[':
+            skip1c += 1
+        elif i == '(':
+            skip2c += 1
+        elif i == ']' and skip1c > 0:
+            skip1c -= 1
+        elif i == ')' and skip2c > 0:
+            skip2c -= 1
+        elif skip1c == 0 and skip2c == 0:
+            ret += i
     return ret
