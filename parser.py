@@ -44,12 +44,15 @@ def test_zim(filename, edition=None):
     file = ZimFile(filename=filename)
     # file.list_articles_by_url()
     edition_lang_code = file.metadata()['language'].decode('utf-8')
+    print(edition_lang_code)
 
     if edition:
         edition_wikt_code = edition
+        print(edition_wikt_code)
     else:
         import parser.lang_code_conversion as languages
         edition_wikt_code = languages.get_wikt_code_from_iso639_3(edition_lang_code)
+        print(edition_wikt_code)
     # print(edition_wikt_code)
     if edition_wikt_code not in parsers:
         print("We don't have a parser for {}/{} language yet.".format(edition_lang_code, edition_wikt_code))
@@ -72,7 +75,6 @@ def test_html():
         parser = parsers[edition]()
         for tup in parser.generate_translation_tuples(soup):
             print(",".join(tup))
-
 
 def main():
     # import_parsers()
