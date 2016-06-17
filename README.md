@@ -28,10 +28,11 @@ The output is a `.csv` with these seven columns.
 
 - `beautifulsoup4`: used for parsing html.
 - `requests`: used to make http calls and fetch `.html` from the Intenet. Will eventually be removed as we will be dealing with locally stored files.
-- `pycountry` and `iso-639`: used for conversion between language codes.
+- `pycountry` and `iso-639`: used for conversion between language codes. Used when you do not specify an wiktionary edition code.
+- `repoze.lru`: LRU cache which significantly improve performance for `.zim`. 
 
 Install in a `virtualenv` as appropriate.
-To install all dependencies:
+To install all dependencies (you don't have to):
 
     $ pip install -r requirements.txt
 
