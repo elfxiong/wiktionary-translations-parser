@@ -1,6 +1,8 @@
 """
 The common methods in different editions
 """
+import string
+
 import re
 import requests
 from bs4 import BeautifulSoup, Tag
@@ -74,3 +76,8 @@ def remove_parenthesis(string):
         elif skip1c == 0 and skip2c == 0:
             ret += i
     return ret
+
+
+def remove_all_punctuation(line):
+    punc = str.maketrans('', '', string.punctuation)
+    return line.translate(punc).replace('→', '').strip()

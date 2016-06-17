@@ -3,7 +3,7 @@ The common methods in different editions
 """
 import re
 from bs4 import Tag
-from .helper import remove_parenthesis, COMMA_OR_SEMICOLON
+from .helper import remove_parenthesis, COMMA_OR_SEMICOLON, remove_all_punctuation
 
 HEADING_TAG = re.compile(r'^h(?P<level>[1-6])$', re.I)
 
@@ -54,17 +54,17 @@ class GeneralParser:
             # language code is in super script
             lang_code = li.find("sup")
             if lang_code:
-                lang_code = lang_code.text.strip()[1:-1]
+                lang_code = remove_all_punctuation(lang_code.text)
             else:
                 lang_code = ""
 
-            # There are two functions that removes parentheses. Not sure which one to use.
             t = remove_parenthesis(text[1])
             trans_list = re.split(COMMA_OR_SEMICOLON, t)
             # each "trans" is: translation <sup>(lang_code)</sup> (transliteration)
             # lang_code and transliteration may not exist
             for trans in trans_list:
-                translation = trans.split('(')[0].strip()
+                # translation = trans.split('(')[0].strip()
+                translation = re.split(r'[(→]', trans)[0].strip()
                 # Throw out tuples if they have '[['
                 if "[[" in translation:
                     continue
