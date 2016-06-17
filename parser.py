@@ -2,30 +2,25 @@ import argparse
 import sys
 
 from parser.helper import infer_edition_from_url, get_html_tree_from_string, get_html_tree_from_url
-from parser.parse_ja import JaParser
-from parser.parse_vi import ViParser
-from parser.parse_fr import FrParser
-from parser.parse_tr import TrParser
-from parser.parse_uz import UzParser
-from parser.parse_ru import RuParser
-from parser.parse_de import DeParser
 
 if sys.version_info[0:3] >= (3, 0, 0):  # python 3 (tested)
     from zim.zimpy_p3 import ZimFile
 else:  # python 2 (not tested)
     from zim.zimpy_p2 import ZimFile
 
-parsers = {'ja': JaParser, 'tr': TrParser, 'fr': FrParser, 'vi': ViParser, 'ru': RuParser, 'uz': UzParser,
-           'de': DeParser}
+parsers = {}
 
 
-# def import_parsers():
-#     import importlib
-#     for parser_name in parser_list:
-#         module_to_import = '.parse_' + parser_name
-#         module = importlib.import_module(module_to_import, package='parser')
-#         parsers[parser_name] = module.generate_translation_tuples
-#         tested_url.extend(module.tested_url)
+# dynamically loading all modules
+def import_parsers():
+    parser_list = ['ja', 'vi', 'tr', 'fr', 'ru', 'uz', 'de']
+    import importlib
+    for parser_name in parser_list:
+        module_to_import = '.parse_' + parser_name
+        module = importlib.import_module(module_to_import, package='parser')
+        parsers[parser_name] = getattr(module, parser_name.capitalize() + "Parser")
+        # tested_url.extend(module.tested_url)
+
 
 def read_zim_file(file):
     # print(file.metadata())
@@ -80,7 +75,7 @@ def test_html():
 
 
 def main():
-    # import_parsers()
+    import_parsers()
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--zim', '-z', help='use zim file instead of html')
