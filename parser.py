@@ -78,12 +78,13 @@ def test_html():
         for tup in parser.generate_translation_tuples(soup):
             print(",".join(tup))
 
+
 def main():
     # import_parsers()
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--zim', '-z', help='use zim file instead of html')
-    parser.add_argument('--edition', '-e', help='explicitly specify the language edition')
+    parser.add_argument('--edition', '-e', help='explicitly specify the language edition when using zim file')
 
     args = parser.parse_args()
     if args.zim:

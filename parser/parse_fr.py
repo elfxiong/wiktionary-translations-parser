@@ -11,6 +11,7 @@ class FrParser(GeneralParser):
         "https://fr.wiktionary.org/wiki/ouvrir",
         "https://fr.wiktionary.org/wiki/amour",
     ]
+
     def __init__(self):
         super(FrParser, self).__init__()
         self.edition = 'fr'
