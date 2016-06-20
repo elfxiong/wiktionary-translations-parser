@@ -21,6 +21,7 @@ Each translation tuple consists of these fields:
 - `trans_lang`: the language the `headword` is translated into.
 - `trans_lang_code`: the language code of `tranlation_lang`. This is the edition code used by Wiktionary, and it is [not from a single ISO standard](https://en.wiktionary.org/wiki/Wiktionary:Languages#Language_codes).
 - `pos`: the part of speech of the `headword` in `head_lang`.
+- `pronunciation`: the IPA representation of the `headword`; reflects how the word would be spoken in the `head_lang` 
 
 The output is a `.csv` with these seven columns.
 
@@ -67,4 +68,5 @@ The list of common things in different editions are listed in [common.md](common
 - Generalize them and create a skeleton for writing other parsers.
   - make it so that we need minimal changes in order to parse another edition
 - Generate parsers for editions of interest.
+- Modify current scripts to include pronunciation extraction from foreign editions of Wiktionary.
 - Use translation scripts as base for derivation-table-parsing scripts.
