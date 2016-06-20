@@ -40,16 +40,6 @@ To install one by one, use `pip install [PACKAGE NAME]`.
 
 ## Usage
 
-### Run parser.py
-
-To run `parser.py` with a `.zim` file:
-
-    $ python parser.py -z [zimfile]
-
-- Support for using `.zim` file has only been tested for `Python 3.5`. It is probably not working for `Python 2` at this moment.
-
-Detailed usage:
-
     usage: parser.py [-h] [--zim ZIM] [--edition EDITION]
     optional arguments:
       -h, --help            show this help message and exit
@@ -57,17 +47,39 @@ Detailed usage:
       --edition EDITION, -e EDITION
                             explicitly specify the language edition
 
-### Test a single parser
+### Run parser.py with zim
 
-To test a single parser:
+To run `parser.py` with a `.zim` file:
 
-    $ python -m parser.[FILENAME]
+    $ python parser.py -z [zimfile]
 
-For example, to test `parse_ja.py`:
+- Support for using `.zim` file has only been tested for `Python 3.5`. It is probably not working for `Python 2` at this moment.
 
-    $ python -m parser.parse_ja
+The edition will be inferred from the metadata of the `.zim` file. If you want to specify the edition explicitly:
 
-Notice there is no `.py` extension.
+    $ python parser.py -z [zimfile] -e [edition]
+
+### Test a single parser with html
+
+There are two ways to use the predefined urls:
+
+1. Omit the `-z` flag:
+
+        $ python parser.py -e [edition]
+
+    E.g. 
+
+        $ python parser.py -e ja
+
+1. Tell python to run the `main()` in the specific parser:
+
+        $ python -m parser.[FILENAME]
+
+	E.g. , to test `parse_ja.py`:
+
+        $ python -m parser.parse_ja
+        
+    Notice there is no `.py` extension.
 
 ## Progress
 
