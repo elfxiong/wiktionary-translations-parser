@@ -29,24 +29,17 @@ The output is a `.csv` with these seven columns.
 
 - `beautifulsoup4`: used for parsing html.
 - `requests`: used to make http calls and fetch `.html` from the Intenet. Will eventually be removed as we will be dealing with locally stored files.
-- `pycountry` and `iso-639`: used for conversion between language codes.
+- `pycountry` and `iso-639`: used for conversion between language codes. Used when you do not specify an wiktionary edition code.
+- `repoze.lru`: LRU cache which significantly improve performance for `.zim`. 
 
 Install in a `virtualenv` as appropriate.
-To install all dependencies:
+To install all dependencies (you don't have to):
 
     $ pip install -r requirements.txt
 
 To install one by one, use `pip install [PACKAGE NAME]`. 
 
 ## Usage
- 
-To run with a `.zim` file:
-
-    $ python parser.py -z [zimfile]
-
-- Support for using `.zim` file has only been tested for `Python 3.5`. It is probably not working for `Python 2` at this moment.
-
-Detailed usage:
 
     usage: parser.py [-h] [--zim ZIM] [--edition EDITION]
     optional arguments:
@@ -55,7 +48,45 @@ Detailed usage:
       --edition EDITION, -e EDITION
                             explicitly specify the language edition
 
+### Run parser.py with zim
 
+To run `parser.py` with a `.zim` file:
+
+    $ python parser.py -z [zimfile]
+
+- Support for using `.zim` file has only been tested for `Python 3.5`. It is probably not working for `Python 2` at this moment.
+
+The edition will be inferred from the metadata of the `.zim` file. If you want to specify the edition explicitly:
+
+    $ python parser.py -z [zimfile] -e [edition]
+
+### Test a single parser with html
+
+There are two ways to use the predefined urls:
+
+1. Omit the `-z` flag:
+
+        $ python parser.py -e [edition]
+
+    E.g. 
+
+        $ python parser.py -e ja
+
+1. Tell python to run the `main()` in the specific parser:
+
+        $ python -m parser.[FILENAME]
+
+	E.g. , to test `parse_ja.py`:
+
+        $ python -m parser.parse_ja
+        
+    Notice there is no `.py` extension.
+
+## Progress
+
+- Tested with `.zim`: `ja`
+- Tested with some representative `.html` pages: `az` `de` `fr` `ru` `tr` `uz` `vi`
+- Started: `pl`
 
 ## Common
 
