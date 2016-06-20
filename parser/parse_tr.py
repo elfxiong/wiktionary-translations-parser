@@ -10,7 +10,7 @@ class TrParser(GeneralParser):
         "https://tr.wiktionary.org/wiki/ev",
         "https://tr.wiktionary.org/wiki/abartmak",
     ]
-    
+
     def __init__(self):
         super(TrParser, self).__init__()
         self.edition = 'tr'
@@ -65,7 +65,7 @@ class TrParser(GeneralParser):
                         # NOTE: The translations that start with [1] [#Language] are just being put as the language
                         # even though no translation is actually available. So right now i throw those tuples out completely
                         # If we don't want that, just take out the if statement.
- 
+
                         translation = translation.strip('[#|]')
                         yield (
                             self.edition, page_state['headword'], page_state['headword_lang'], translation, lang,
