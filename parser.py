@@ -12,6 +12,7 @@ else:  # python 2 (not tested)
 # key: Wiktionary edition code
 # value: parser class (not parser instance)
 parsers = {}
+headers = ['edition', 'headword', 'head_lang', 'translation', 'trans_lang', 'trans_lang_code', 'pos']
 
 
 # dynamically loading all modules
@@ -56,16 +57,17 @@ def test_zim(filename, edition=None):
     file = ZimFile(filename=filename)
     # file.list_articles_by_url()
     edition_lang_code = file.metadata()['language'].decode('utf-8')
-    print(edition_lang_code)
+    # print(edition_lang_code)
 
     if edition:
         edition_wikt_code = edition
-        print(edition_wikt_code)
+        # print(edition_wikt_code)
     else:
         import parser.lang_code_conversion as languages
         edition_wikt_code = languages.get_wikt_code_from_iso639_3(edition_lang_code)
-        print(edition_wikt_code)
+        # print(edition_wikt_code)
 
+    print(headers)
     # get the parser class
     parser = get_parser(edition_wikt_code)
     if parser is None:
@@ -83,7 +85,7 @@ def test_zim(filename, edition=None):
 def test_html(edition=None):
     if edition is None:
         import_all_parsers()
-
+        print(','.join(headers))
         urls_lists = [parser.tested_url for parser in parsers.values()]
         test_urls = [url for sub_list in urls_lists for url in sub_list]
         for url in test_urls:
@@ -94,6 +96,7 @@ def test_html(edition=None):
                 print(",".join(tup))
     else:
         parser = get_parser(edition)
+        print(','.join(headers))
         for url in parser.tested_url:
             soup = get_html_tree_from_url(url)
             for tup in parser.generate_translation_tuples(soup):
