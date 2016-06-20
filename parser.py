@@ -13,6 +13,7 @@ else:  # python 2 (not tested)
 # value: parser class (not parser instance)
 parsers = {}
 
+
 # dynamically loading all modules
 def import_all_parsers():
     parser_list = ['ja', 'vi', 'tr', 'fr', 'ru', 'uz', 'de', 'az']
@@ -79,29 +80,36 @@ def test_zim(filename, edition=None):
             print(",".join(tup))
 
 
-def test_html():
-    import_all_parsers()
+def test_html(edition=None):
+    if edition is None:
+        import_all_parsers()
 
-    urls_lists = [parser.tested_url for parser in parsers.values()]
-    test_urls = [url for sub_list in urls_lists for url in sub_list]
-    for url in test_urls:
-        edition = infer_edition_from_url(url)
-        soup = get_html_tree_from_url(url)
+        urls_lists = [parser.tested_url for parser in parsers.values()]
+        test_urls = [url for sub_list in urls_lists for url in sub_list]
+        for url in test_urls:
+            edition = infer_edition_from_url(url)
+            soup = get_html_tree_from_url(url)
+            parser = get_parser(edition)
+            for tup in parser.generate_translation_tuples(soup):
+                print(",".join(tup))
+    else:
         parser = get_parser(edition)
-        for tup in parser.generate_translation_tuples(soup):
-            print(",".join(tup))
+        for url in parser.tested_url:
+            soup = get_html_tree_from_url(url)
+            for tup in parser.generate_translation_tuples(soup):
+                print(",".join(tup))
 
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--zim', '-z', help='use zim file instead of html')
-    parser.add_argument('--edition', '-e', help='explicitly specify the language edition when using zim file')
+    parser.add_argument('--edition', '-e', help='explicitly specify the language edition, for either html or zim')
 
     args = parser.parse_args()
     if args.zim:
         test_zim(args.zim, args.edition)
     else:
-        test_html()
+        test_html(args.edition)
 
 
 if __name__ == '__main__':
