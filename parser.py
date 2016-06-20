@@ -12,7 +12,8 @@ else:  # python 2 (not tested)
 # key: Wiktionary edition code
 # value: parser class (not parser instance)
 parsers = {}
-headers = ['edition', 'headword', 'head_lang', 'translation', 'trans_lang', 'trans_lang_code', 'pos']
+
+headers = ['edition', 'headword', 'head_lang', 'translation', 'trans_lang', 'trans_lang_code', 'pos', 'pronunciation']
 
 
 # dynamically loading all modules
@@ -67,7 +68,7 @@ def test_zim(filename, edition=None):
         edition_wikt_code = languages.get_wikt_code_from_iso639_3(edition_lang_code)
         # print(edition_wikt_code)
 
-    print(headers)
+    print(','.join(headers))
     # get the parser class
     parser = get_parser(edition_wikt_code)
     if parser is None:
@@ -100,7 +101,7 @@ def test_html(edition=None):
         for url in parser.tested_url:
             soup = get_html_tree_from_url(url)
             for tup in parser.generate_translation_tuples(soup):
-                print(",".join(tup))
+                print(','.join(tup))
 
 
 def main():

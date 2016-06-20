@@ -21,14 +21,15 @@ Each translation tuple consists of these fields:
 - `trans_lang`: the language the `headword` is translated into.
 - `trans_lang_code`: the language code of `tranlation_lang`. This is the edition code used by Wiktionary, and it is [not from a single ISO standard](https://en.wiktionary.org/wiki/Wiktionary:Languages#Language_codes).
 - `pos`: the part of speech of the `headword` in `head_lang`.
+- `pronunciation`: the pronunciation of the `headword`.
 
 The output is a `.csv` with these seven columns.
 
 ## Dependencies
 
 - `beautifulsoup4`: used for parsing html.
-- `requests`: used to make http calls and fetch `.html` from the Intenet. Will eventually be removed as we will be dealing with locally stored files.
-- `pycountry` and `iso-639`: used for conversion between language codes. Used when you do not specify an wiktionary edition code.
+- `requests`: used to make http calls and fetch `.html` from the Internet. Will eventually be removed as we will be dealing with locally stored files.
+- `pycountry` and `iso-639`: used for conversion between language codes. Used when you do not specify an Wiktionary edition code.
 - `repoze.lru`: LRU cache which significantly improve performance for `.zim`. 
 
 Install in a `virtualenv` as appropriate.
