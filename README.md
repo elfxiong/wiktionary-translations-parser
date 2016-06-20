@@ -69,6 +69,12 @@ For example, to test `parse_ja.py`:
 
 Notice there is no `.py` extension.
 
+## Progress
+
+- Tested with `.zim`: `ja`
+- Tested with some representative `.html` pages: `az` `de` `fr` `ru` `tr` `uz` `vi`
+- Started: `pl`
+
 ## Common
 
 The list of common things in different editions are listed in [common.md](common.md).
