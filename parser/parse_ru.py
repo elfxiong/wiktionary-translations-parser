@@ -78,8 +78,10 @@ class RuParser(GeneralParser):
         page_state = {'headword': title,
                       'headword_lang': None,
                       'part_of_speech': None,
+                      'pronunciation': None,
                       'pos_region': False, # pos_region is specific to Russian
-                      'translation_region': False}
+                      'translation_region': False,
+                      'pro_region': False}
         
         # iterate through the childen of the table of contents to find translations              
         for element in toc.children:
@@ -93,12 +95,16 @@ class RuParser(GeneralParser):
 
                 # Grab the part of speech, always contained in a level 3
                 # sometimes the part of speech is preceded by headword
+                # this could also be pronunciations
                 elif level == 3:
                     first_headline = element.find(class_='mw-headline')
                     if first_headline.text == u'Морфологические и синтаксические свойства':
                         page_state['pos_region'] = True
                     elif first_headline.text == u'Перевод':
                         page_state['translation_region'] = True
+                    elif first_headline.text == u'Произношение':
+                        page_state['translation_region'] = False
+                        page_state['pro_region'] = True
                     else:
                         page_state['translation_region'] = False
                         
@@ -128,6 +134,8 @@ class RuParser(GeneralParser):
                     for translation in self.parse_ordered_list_russian(element):
                         yield (self.edition, page_state['headword'], page_state['headword_lang'], translation.strip(),
                                u'Русский', 'ru', page_state['part_of_speech'])
+
+                # parse through an ordered list to grab pronunciations
                                        
                 # parse through a table to grab translations
                 elif element.name == 'table' and page_state['translation_region']:
@@ -146,6 +154,9 @@ def main():
         for tup in parser.generate_translation_tuples(soup):
             print(','.join(tup))
 
+#def main():
+    #parser = RuParser()
 
+    
 if __name__ == '__main__':
     main()
