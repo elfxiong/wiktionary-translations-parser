@@ -30,7 +30,7 @@ class UzParser(GeneralParser):
         page_state = {'headword': None,
                       'headword_lang': None,
                       'part_of_speech': ''}
-
+        pronounce = ''
         page_state['headword'] = soup.find('h1', id='firstHeading', class_='firstHeading').text
 
         for element in toc.children:
@@ -60,7 +60,7 @@ class UzParser(GeneralParser):
                     for translation, lang, lang_code in self.parse_translation_table(element):
                         yield (
                             self.edition, page_state['headword'], page_state['headword_lang'], translation, lang,
-                            lang_code, page_state['part_of_speech'])
+                            lang_code, page_state['part_of_speech'], pronounce)
                     translation_table = False
 
 

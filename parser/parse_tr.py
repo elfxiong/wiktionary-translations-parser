@@ -33,6 +33,8 @@ class TrParser(GeneralParser):
         page_state = {'headword': None,
                       'headword_lang': None,
                       'part_of_speech': None}
+
+        pronounce = ''
         for element in toc.children:
             if isinstance(element, Tag):  # it could be a Tag or a NavigableString
                 level = self.get_heading_level(element.name)
@@ -40,6 +42,8 @@ class TrParser(GeneralParser):
                 if level == 2:  # it is a header tag
                     page_state['headword_lang'] = self.get_heading_text(element.find_next_sibling('div'))
                     page_state['headword_lang'] = page_state['headword_lang'].lstrip('\n')
+                    pronounce = ''
+                    
                 elif level == 3:
                     page_state['part_of_speech'] = self.get_heading_text(element)
                 elif element.name == "p":  # is a paragraph tag
@@ -56,6 +60,11 @@ class TrParser(GeneralParser):
 
                     if bold_word.text == u"Türk Dilleri" and head == True:
                         translation_table = True
+                elif element.b is not None and 'Söyleniş' in element.b.text:
+
+                    temp = element.find_next_sibling
+                    if temp.dl.dd is not None:
+                        pronounce = temp.dl.dd.text
 
                 elif translation_table:
 
@@ -67,10 +76,12 @@ class TrParser(GeneralParser):
                         # If we don't want that, just take out the if statement.
 
                         translation = translation.strip('[#|]')
+
                         yield (
                             self.edition, page_state['headword'], page_state['headword_lang'], translation, lang,
-                            lang_code, page_state['part_of_speech'])
+                            lang_code, page_state['part_of_speech'], pronounce)
                     translation_table = False
+
 
 
 def main():

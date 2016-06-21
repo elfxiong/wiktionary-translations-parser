@@ -34,6 +34,8 @@ class AzParser(GeneralParser):
                   'headword_lang': None,
                   'part_of_speech': ''}
 
+        pronounce = ''
+        
         page_state['headword'] = soup.find('h1', id='firstHeading', class_='firstHeading').text
 
         for element in toc.children:
@@ -47,12 +49,20 @@ class AzParser(GeneralParser):
                     if element.a is not None:
                         
                         page_state['headword_lang'] = element.a.text.replace('dili','').strip()
-
+                        pronounce = ''
+                        
                 elif element.a is not None and \
                     'title' in element.a.attrs and 'Kateqoriya:Nitq hissələri' in element.a['title']:
                     
                     page_state['part_of_speech'] = element.a.text
+                
+                elif element.name == 'ul':
 
+                    for li in element.find_all('li'):
+                        if not isinstance(li, Tag):
+                            continue
+                        if li.get_text().split(':')[0] == 'Tələffüz':
+                            pronounce = li.get_text().split(':')[1].strip()
 
                 elif element.span is not None:
                     
@@ -70,8 +80,8 @@ class AzParser(GeneralParser):
                             lang = lang.strip()
                             yield (
                                 self.edition, page_state['headword'], page_state['headword_lang'], translation, lang,
-                                lang_code, page_state['part_of_speech'])
-
+                                lang_code, page_state['part_of_speech'], pronounce)
+                        
 
 def main():
     parser = AzParser()
