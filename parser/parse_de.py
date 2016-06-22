@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from collections import defaultdict
+
 import re
 
 from bs4 import Tag
@@ -23,16 +25,20 @@ class DeParser(GeneralParser):
         for word_data in self.parse_page(soup):
             if word_data is None:
                 continue
-            for translation_tup in word_data['translations']:
-                yield (
-                    self.edition, word_data['headword'], word_data['headword_lang'], translation_tup[0],
-                    translation_tup[1], translation_tup[2], word_data['part_of_speech'], word_data['pronunciation'])
-            else:  # when the translation list is empty
-                yield (self.edition, word_data['headword'], word_data['headword_lang'], '',
-                       '', '', word_data['part_of_speech'], word_data['pronunciation'])
+
+            yield (self.edition, word_data['headword'], word_data['headword_lang'], '',
+                   '', '', ';'.join(word_data['part_of_speech'][1:]), word_data['pronunciation'])
+            for pos, translation_tup_list in word_data['translations'].items():
+                for translation_tup in translation_tup_list:
+                    yield (
+                        self.edition, word_data['headword'], word_data['headword_lang'], translation_tup[0],
+                        translation_tup[1], translation_tup[2], pos, word_data['pronunciation'])
+                if not translation_tup_list:  # a part of speech doesn't have any translations
+                    if pos != '':
+                        yield (self.edition, word_data['headword'], word_data['headword_lang'], '',
+                               '', pos, word_data['pronunciation'])
 
     def parse_page(self, soup):
-
         page_content = soup.find('div', id='mw-content-text')
         page_heading = None
         element = soup.find('div', class_='mw-body-content') or page_content
@@ -44,10 +50,10 @@ class DeParser(GeneralParser):
                 page_heading = element.text
 
         page_state = {'headword': None,
-                      'headword_lang': "",
-                      'part_of_speech': "",
-                      'pronunciation': "",
-                      'translations': []}
+                      'headword_lang': '',
+                      'part_of_speech': [''],
+                      'pronunciation': '',
+                      'translations': defaultdict(list)}
         for element in page_content.children:
             if isinstance(element, Tag):
                 level = self.get_heading_level(element.name)
@@ -60,11 +66,11 @@ class DeParser(GeneralParser):
                     page_state['headword'] = s.split('(')[0].strip() or page_heading
                     page_state['headword_lang'] = s[s.find("(") + 1:s.find(")")]
                     page_state['translation_region'] = False
-                    page_state['part_of_speech'] = ""
-                    page_state['translations'] = []
-                    page_state['pronunciation'] = ""
+                    page_state['part_of_speech'] = ['']
+                    page_state['pronunciation'] = ''
+                    page_state['translations'] = defaultdict(list)
                 elif level == 3:
-                    page_state['part_of_speech'] = self.get_heading_text(element).split(',')[0].strip()
+                    page_state['part_of_speech'].append(self.get_heading_text(element).split(',')[0].strip())
                     page_state['translation_region'] = False
                 elif element.name == "h4":
                     first_headline = element.find(class_="mw-headline")
@@ -78,7 +84,11 @@ class DeParser(GeneralParser):
                 elif 'class' not in element.attrs:
                     page_state['translation_region'] = False
                 elif page_state['translation_region']:
-                    page_state['translations'] += self.parse_translation_table(element)
+                    translation_tup_list = list(self.parse_translation_table(element))
+                    if not translation_tup_list:
+                        continue
+                    pos = page_state['part_of_speech'][-1]
+                    page_state['translations'][pos] += translation_tup_list
 
                 pronunciation = element.find(class_="ipa")
                 if pronunciation:
