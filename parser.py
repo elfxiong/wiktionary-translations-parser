@@ -1,5 +1,6 @@
 import argparse
 import sys
+import logging
 
 from parser.helper import infer_edition_from_url, get_html_tree_from_string, get_html_tree_from_url
 import importlib
@@ -8,6 +9,9 @@ if sys.version_info[0:3] >= (3, 0, 0):  # python 3 (tested)
     from zim.zimpy_p3 import ZimFile
 else:  # python 2 (not tested)
     from zim.zimpy_p2 import ZimFile
+
+LOG_FILENAME = "log/parser.log"
+logging.basicConfig(filename=LOG_FILENAME, level=logging.DEBUG)
 
 # key: Wiktionary edition code
 # value: parser class (not parser instance)
@@ -80,7 +84,13 @@ def test_zim(filename, edition=None):
     for page in page_generator:
         soup = get_html_tree_from_string(page)
         for tup in parser.generate_translation_tuples(soup):
-            print(",".join(tup))
+            try:
+                print(','.join(tup))
+            except TypeError as e:
+                logging.debug(e)
+                logging.debug(tup)
+                logging.debug(soup)
+                continue
 
 
 def test_html(edition=None):
