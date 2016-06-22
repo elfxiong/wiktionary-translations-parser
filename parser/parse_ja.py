@@ -51,7 +51,7 @@ class JaParser(GeneralParser):
             if isinstance(element, Tag):
                 page_heading = element.text
 
-        page_state = {'headword': page_heading,
+        page_state = {'headword': None,
                       'headword_lang': "",
                       'part_of_speech': "",
                       'pronunciation': "",
@@ -64,7 +64,7 @@ class JaParser(GeneralParser):
                         yield page_state
                     page_state['headword_lang'] = self.get_heading_text(element)
                     page_state['part_of_speech'] = ""
-                    # page_state['headword'] = page_heading  # default value
+                    page_state['headword'] = page_heading  # default value
                     page_state['pronunciation'] = ""
                     page_state['translations'] = []
                 elif level == 3:
