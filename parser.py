@@ -13,7 +13,7 @@ else:  # python 2 (not tested)
 
 
 def setup_logger():
-    if not os.path.exists('.log'):
+    if not os.path.exists('log/'):
         os.mkdir('log/')
     LOG_FILENAME = "log/parser.log"
     logging.basicConfig(filename=LOG_FILENAME, level=logging.DEBUG)
