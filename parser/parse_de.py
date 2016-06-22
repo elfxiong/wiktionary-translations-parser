@@ -11,6 +11,7 @@ class DeParser(GeneralParser):
         "https://de.wiktionary.org/wiki/gene",
         "https://de.wiktionary.org/wiki/play",
         "https://de.wiktionary.org/wiki/nicht",
+        "https://de.wiktionary.org/wiki/flamboyant",
     ]
 
     def __init__(self):
@@ -18,21 +19,46 @@ class DeParser(GeneralParser):
         self.edition = 'de'
 
     def generate_translation_tuples(self, soup):
-        toc = soup.find('div', id='mw-content-text')
+        # format the data to lists and yield
+        for word_data in self.parse_page(soup):
+            if word_data is None:
+                continue
+            for translation_tup in word_data['translations']:
+                yield (
+                    self.edition, word_data['headword'], word_data['headword_lang'], translation_tup[0],
+                    translation_tup[1], translation_tup[2], word_data['part_of_speech'], word_data['pronunciation'])
+            else:  # when the translation list is empty
+                yield (self.edition, word_data['headword'], word_data['headword_lang'], '',
+                       '', '', word_data['part_of_speech'], word_data['pronunciation'])
+
+    def parse_page(self, soup):
+
+        page_content = soup.find('div', id='mw-content-text')
+        page_heading = None
+        element = soup.find('div', class_='mw-body-content') or page_content
+        while not page_heading:
+            if element is None:
+                return None
+            element = element.previous_sibling
+            if isinstance(element, Tag):
+                page_heading = element.text
 
         page_state = {'headword': None,
-                      'headword_lang': None,
-                      'part_of_speech': None,
-                      'translation_region': False}
-        for element in toc.children:
+                      'headword_lang': "",
+                      'part_of_speech': "",
+                      'pronunciation': "",
+                      'translations': []}
+        for element in page_content.children:
             if isinstance(element, Tag):
                 level = self.get_heading_level(element.name)
                 # print(element)
                 # print(page_state['translation_region'], element.name)
                 if level == 2:
+                    if page_state['headword']:
+                        yield page_state
                     s = self.get_heading_text(element)
                     # format: "headword (language)"
-                    page_state['headword'] = s.split('(')[0].strip()
+                    page_state['headword'] = s.split('(')[0].strip() or page_heading
                     page_state['headword_lang'] = s[s.find("(") + 1:s.find(")")]
                     page_state['translation_region'] = False
                 elif level == 3:
@@ -48,17 +74,19 @@ class DeParser(GeneralParser):
                 elif 'class' not in element.attrs:
                     page_state['translation_region'] = False
                 elif page_state['translation_region']:
-                    # print()
-                    # print()
-                    # print()
-                    # print(element)
-                    # table = element.find_next_sibling(class_="columns")
-                    for translation, lang, lang_code in self.parse_translation_table(element):
-                        # remove ` n`, ` m` or ` f` at the end of the word
-                        translation = re.sub(r'( n)|( m)|( f)$', '', translation)
-                        yield (
-                            self.edition, page_state['headword'], page_state['headword_lang'], translation, lang,
-                            lang_code, page_state['part_of_speech'])
+
+                    # for translation, lang, lang_code in self.parse_translation_table(element):
+                    # remove ` n`, ` m` or ` f` at the end of the word
+                    # translation = re.sub(r'( n)|( m)|( f)$', '', translation)
+                    # print(translation)
+                    # print(page_state['translations'])
+                    page_state['translations'] += self.parse_translation_table(element)
+
+        yield page_state
+
+    def parse_translation_table(self, table):
+        lst = list(super(DeParser, self).parse_translation_table(table))
+        return [(re.sub(r'( n)|( m)|( f)$', '', tup[0]), tup[1], tup[2]) for tup in lst]
 
 
 def main():
