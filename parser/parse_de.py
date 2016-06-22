@@ -51,8 +51,7 @@ class DeParser(GeneralParser):
         for element in page_content.children:
             if isinstance(element, Tag):
                 level = self.get_heading_level(element.name)
-                # print(element)
-                # print(page_state['translation_region'], element.name)
+
                 if level == 2:
                     if page_state['headword']:
                         yield page_state
@@ -74,18 +73,17 @@ class DeParser(GeneralParser):
                 elif 'class' not in element.attrs:
                     page_state['translation_region'] = False
                 elif page_state['translation_region']:
-
-                    # for translation, lang, lang_code in self.parse_translation_table(element):
-                    # remove ` n`, ` m` or ` f` at the end of the word
-                    # translation = re.sub(r'( n)|( m)|( f)$', '', translation)
-                    # print(translation)
-                    # print(page_state['translations'])
                     page_state['translations'] += self.parse_translation_table(element)
+
+                pronunciation = element.find(class_="ipa")
+                if pronunciation:
+                    page_state['pronunciation'] = pronunciation.text
 
         yield page_state
 
     def parse_translation_table(self, table):
         lst = list(super(DeParser, self).parse_translation_table(table))
+        # remove ` n`, ` m` or ` f` at the end of the word
         return [(re.sub(r'( n)|( m)|( f)$', '', tup[0]), tup[1], tup[2]) for tup in lst]
 
 
@@ -95,7 +93,6 @@ def main():
         soup = get_html_tree_from_url(url)
         for tup in parser.generate_translation_tuples(soup):
             print(','.join(tup))
-            pass
 
 
 if __name__ == '__main__':
