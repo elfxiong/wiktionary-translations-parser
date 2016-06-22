@@ -78,7 +78,9 @@ class JaParser(GeneralParser):
                 pronunciation = element.find(class_="IPA")
                 if pronunciation:
                     page_state['pronunciation'] = pronunciation.text
-        yield page_state
+
+        if page_state['headword']:
+            yield page_state
 
 
 def main():
