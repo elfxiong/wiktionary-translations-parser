@@ -1,3 +1,5 @@
+# TODO: make compatible w/ .zim files, find POS for translated words(?)
+
 # -*- coding: utf-8 -*-
 import re
 
