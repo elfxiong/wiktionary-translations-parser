@@ -49,12 +49,12 @@ class GeneralParser:
                 continue
 
             # language name is before ":"
-            lang_name = text[0]
+            lang_name = text[0].strip()
 
             # language code is in super script
             lang_code = li.find("sup")
             if lang_code:
-                lang_code = remove_all_punctuation(lang_code.text)
+                lang_code = remove_all_punctuation(lang_code.text).strip()
             else:
                 lang_code = ""
 
