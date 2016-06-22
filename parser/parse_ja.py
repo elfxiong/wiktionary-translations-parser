@@ -62,7 +62,7 @@ class JaParser(GeneralParser):
                       'headword_lang': '',
                       'part_of_speech': [''],
                       'pronunciation': '',
-                      'translations': defaultdict(lambda: defaultdict(list))}
+                      'translations': defaultdict(list)}
         for element in page_content.children:
             if isinstance(element, Tag):
                 pronunciation = element.find(class_="IPA")
@@ -73,9 +73,9 @@ class JaParser(GeneralParser):
                 if level == 2:
                     if page_state['headword']:
                         yield page_state
+                    page_state['headword'] = page_heading  # default value
                     page_state['headword_lang'] = self.get_heading_text(element)
                     page_state['part_of_speech'] = ['']
-                    page_state['headword'] = page_heading  # default value
                     page_state['pronunciation'] = ''
                     page_state['translations'] = defaultdict(list)
                 elif level == 3:
