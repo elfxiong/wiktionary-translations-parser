@@ -2,6 +2,7 @@ import argparse
 import sys
 import logging
 
+import os
 from parser.helper import infer_edition_from_url, get_html_tree_from_string, get_html_tree_from_url
 import importlib
 
@@ -10,8 +11,13 @@ if sys.version_info[0:3] >= (3, 0, 0):  # python 3 (tested)
 else:  # python 2 (not tested)
     from zim.zimpy_p2 import ZimFile
 
-LOG_FILENAME = "log/parser.log"
-logging.basicConfig(filename=LOG_FILENAME, level=logging.DEBUG)
+
+def setup_logger():
+    if not os.path.exists('.log'):
+        os.mkdir('log/')
+    LOG_FILENAME = "log/parser.log"
+    logging.basicConfig(filename=LOG_FILENAME, level=logging.DEBUG)
+
 
 # key: Wiktionary edition code
 # value: parser class (not parser instance)
@@ -115,6 +121,7 @@ def test_html(edition=None):
 
 
 def main():
+    setup_logger()
     parser = argparse.ArgumentParser()
     parser.add_argument('--zim', '-z', help='use zim file instead of html')
     parser.add_argument('--edition', '-e', help='explicitly specify the language edition, for either html or zim')
