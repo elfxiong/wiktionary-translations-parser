@@ -50,7 +50,7 @@ class FrParser(GeneralParser):
                                     page_state['pronunciation'] = child.get_text()
                 elif element.name == "h4":
                     first_headline = element.find(class_="mw-headline")
-                    if first_headline.text.strip() == "Traductions":  # this translation header
+                    if first_headline and first_headline.text.strip() == "Traductions":  # this translation header
                         # this is a translation table
                         while True:
                             table = element.find_next_sibling()
