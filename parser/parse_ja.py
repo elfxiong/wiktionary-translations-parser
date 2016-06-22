@@ -24,6 +24,8 @@ class JaParser(GeneralParser):
 
         # format the data to lists and yield
         for word_data in self.parse_page(soup):
+            if word_data is None:
+                continue
             for translation_tup in word_data['translations']:
                 yield (
                     self.edition, word_data['headword'], word_data['headword_lang'], translation_tup[0],
@@ -42,9 +44,9 @@ class JaParser(GeneralParser):
         page_content = soup.find('div', id='mw-content-text')
         page_heading = None
         element = soup.find('div', class_='mw-body-content') or page_content
-        if element is None:
-            return
         while not page_heading:
+            if element is None:
+                return None
             element = element.previous_sibling
             if isinstance(element, Tag):
                 page_heading = element.text
@@ -57,7 +59,6 @@ class JaParser(GeneralParser):
         for element in page_content.children:
             if isinstance(element, Tag):
                 level = self.get_heading_level(element.name)
-
                 if level == 2:
                     if page_state['headword']:
                         yield page_state
