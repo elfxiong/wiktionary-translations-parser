@@ -60,11 +60,16 @@ class DeParser(GeneralParser):
                     page_state['headword'] = s.split('(')[0].strip() or page_heading
                     page_state['headword_lang'] = s[s.find("(") + 1:s.find(")")]
                     page_state['translation_region'] = False
+                    page_state['part_of_speech'] = ""
+                    page_state['translations'] = []
+                    page_state['pronunciation'] = ""
                 elif level == 3:
                     page_state['part_of_speech'] = self.get_heading_text(element).split(',')[0].strip()
                     page_state['translation_region'] = False
                 elif element.name == "h4":
                     first_headline = element.find(class_="mw-headline")
+                    if first_headline is None:
+                        continue
                     if first_headline.text.strip() == u"Übersetzungen":  # this translation header
                         # this is an translation table
                         page_state['translation_region'] = True
@@ -79,7 +84,8 @@ class DeParser(GeneralParser):
                 if pronunciation:
                     page_state['pronunciation'] = pronunciation.text
 
-        yield page_state
+        if page_state['headword']:
+            yield page_state
 
     def parse_translation_table(self, table):
         lst = list(super(DeParser, self).parse_translation_table(table))
