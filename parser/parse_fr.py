@@ -27,7 +27,8 @@ class FrParser(GeneralParser):
         # print(toc.get_text())
         page_state = {'headword': None,
                       'headword_lang': None,
-                      'part_of_speech': None}
+                      'part_of_speech': None,
+                      'pronunciation': None}
         edition = "fr"
         for element in toc.children:
             if isinstance(element, Tag):  # it could be a Tag or a NavigableString
@@ -42,6 +43,11 @@ class FrParser(GeneralParser):
                     if bold_word:
                         page_state['headword'] = bold_word.get_text()
                         # print("headword: ", bold_word.get_text().strip())
+                        link = element.a
+                        if link:
+                            for child in link.findChildren():
+                                if child.has_attr('class') and "API" in child.get("class"):
+                                    page_state['pronunciation'] = child.get_text()
                 elif element.name == "h4":
                     first_headline = element.find(class_="mw-headline")
                     if first_headline.text.strip() == "Traductions":  # this translation header
@@ -52,7 +58,7 @@ class FrParser(GeneralParser):
                                 for translation, lang, lang_code in self.parse_translation_table(table):
                                     yield (
                                         edition, page_state['headword'], page_state['headword_lang'], translation, lang,
-                                        lang_code, page_state['part_of_speech'])
+                                        lang_code, page_state['part_of_speech'], page_state['pronunciation'])
                                 element = table
                             else:
                                 break
