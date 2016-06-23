@@ -26,12 +26,13 @@ class FrParser(GeneralParser):
 
         # this is the table of content which is present in each edition
         toc = soup.find('div', id='mw-content-text')
-        # print(toc.get_text())
         page_state = {'headword': None,
                       'headword_lang': None,
                       'part_of_speech': None,
                       'pronunciation': None}
         edition = "fr"
+        if not toc:
+            return
         for element in toc.children:
             if isinstance(element, Tag):  # it could be a Tag or a NavigableString
                 level = self.get_heading_level(element.name)
@@ -97,7 +98,9 @@ class FrParser(GeneralParser):
 
 def main():
     parser = FrParser()
-    for url in parser.tested_url:
+    text_file = open("data/html_fr.txt", "r")
+    url_list = text_file.read().split('\n')
+    for url in url_list:
         soup = get_html_tree_from_url(url)
         for tup in parser.generate_translation_tuples(soup):
             print(','.join(tup))
