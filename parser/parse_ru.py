@@ -148,14 +148,12 @@ class RuParser(GeneralParser):
                     page_state['translation_region'] = False
 
 def main():
+    
     parser = RuParser()
     for url in parser.tested_url:
         soup = get_html_tree_from_url(url)
         for tup in parser.generate_translation_tuples(soup):
             print(','.join(tup))
-
-#def main():
-    #parser = RuParser()
 
     
 if __name__ == '__main__':
