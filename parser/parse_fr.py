@@ -26,10 +26,10 @@ class FrParser(GeneralParser):
 
         # this is the table of content which is present in each edition
         toc = soup.find('div', id='mw-content-text')
-        page_state = {'headword': None,
-                      'headword_lang': None,
-                      'part_of_speech': None,
-                      'pronunciation': None}
+        page_state = {'headword': '',
+                      'headword_lang': '',
+                      'part_of_speech': '',
+                      'pronunciation': ''}
         edition = "fr"
         if not toc:
             return
