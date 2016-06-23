@@ -75,6 +75,8 @@ class FrParser(GeneralParser):
             if not isinstance(li, Tag):
                 continue
             text = li.get_text().split(':')
+            if len(text) < 2:
+                continue
 
             # language name is before ":"
             lang_name = text[0]
@@ -89,8 +91,8 @@ class FrParser(GeneralParser):
             # There are two functions that removes parentheses. Not sure which one to use.
             t = remove_parenthesis(text[1])
             trans_list = re.split(COMMA_OR_SEMICOLON, t)
-            # each "trans" is: translation <sup>(lang_code)</sup> (transliteration)
-            # lang_code and transliteration may not exist
+                # each "trans" is: translation <sup>(lang_code)</sup> (transliteration)
+                # lang_code and transliteration may not exist
             for trans in trans_list:
                 translation = trans.split('(')[0].strip()
                 yield (translation, lang_name.strip(), lang_code)
