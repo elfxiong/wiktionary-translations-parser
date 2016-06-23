@@ -114,19 +114,45 @@ def test_html(filename, edition=None):
             print(','.join(tup))
 
 
+def use_url_zim(filename, edition=None):
+    file = ZimFile(filename=filename)
+    if not edition:
+        print("Edition not provided. Trying to figure out the edition...")
+        import parser.lang_code_conversion as languages
+        edition_lang_code = file.metadata()['language'].decode('utf-8')
+        edition = languages.get_wikt_code_from_iso639_3(edition_lang_code)
+
+    print("Edition: {}".format(edition))
+    parser = get_parser(edition)
+
+    print("Start to uncompress zim file to get the url list...")
+    from zim.extract import yield_url
+    url_list = ["https://{}.wiktionary.org/wiki/{}".format(edition, url[:-5]) for url in yield_url(filename)]
+    print("Got {} urls from the zim file".format(len(url_list)))
+
+    print(','.join(headers))
+    for url in url_list:
+        soup = get_html_tree_from_url(url)
+        for tup in parser.generate_translation_tuples(soup):
+            print(','.join(tup))
+
+
 def main():
     setup_logger()
     parser = argparse.ArgumentParser()
     group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument('--url', '-u', help='use a file containing a list of urls and get html from the Internet')
-    group.add_argument('--zim', '-z', help='use the zim file as input')
+    group.add_argument('--url_zim', '-uz', help='use a zim file as the source of urls and get html from the Internet')
+    group.add_argument('--url_list', '-ul', help='use a file containing a list of urls and get html from the Internet')
+    group.add_argument('--zim', '-z', help='use the zim file as input instead of html')
     parser.add_argument('--edition', '-e', help='explicitly specify the language edition, for either html or zim')
 
     args = parser.parse_args()
     if args.zim:
         test_zim(args.zim, args.edition)
-    else:
-        test_html(args.url, args.edition)
+    elif args.url_list:
+        test_html(args.url_list, args.edition)
+    elif args.url_zim:
+        use_url_zim(args.url_zim, args.edition)
 
 
 if __name__ == '__main__':

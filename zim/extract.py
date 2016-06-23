@@ -1,15 +1,15 @@
-"""Dump the html pages out of .zim"""
+"""Dump the html pages out of .zim; print all html pages.
+"""
 import argparse
 
 import os
 from zim.zimpy_p3 import ZimFile
 
 
-def print_url(filename):
+def yield_url(filename):
     file = ZimFile(filename=filename)
     namespace = b'A'
     for article in file.articles():
-        # print(article)
         if article['namespace'] != namespace:
             continue
         body = file.get_article_by_index(
@@ -17,7 +17,12 @@ def print_url(filename):
         if not body:
             continue
         else:
-            print(article['url'])
+            yield article['url']
+
+
+def print_url(filename):
+    for url in yield_url(filename):
+        print(url)
 
 
 def print_html(filename, path):
