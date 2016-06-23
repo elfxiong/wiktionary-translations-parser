@@ -1,11 +1,12 @@
 """Dump the html pages out of .zim"""
+import argparse
+
 import os
 from zim.zimpy_p3 import ZimFile
 
 
-def read_zim_file(file):
-    # print(file.metadata())
-    # we only need main articles. They are in namespace 'A'.
+def print_url(filename):
+    file = ZimFile(filename=filename)
     namespace = b'A'
     for article in file.articles():
         # print(article)
@@ -16,36 +17,42 @@ def read_zim_file(file):
         if not body:
             continue
         else:
-            url = article['url']
-            yield (body.decode('utf-8'), url)
+            print(article['url'])
 
 
-def test_zim(filename, edition=None):
+def print_html(filename, path):
     file = ZimFile(filename=filename)
-    # file.list_articles_by_url()
-    edition_lang_code = file.metadata()['language'].decode('utf-8')
-    # print(edition_lang_code)
-
-    if edition:
-        edition_wikt_code = edition
-        # print(edition_wikt_code)
-    else:
-        import parser.lang_code_conversion as languages
-        edition_wikt_code = languages.get_wikt_code_from_iso639_3(edition_lang_code)
-        # print(edition_wikt_code)
-
-    # instantiate the parser
-    page_generator = read_zim_file(file)
-    path = '../data/' + edition_wikt_code
-    if not os.path.exists(path):
-        os.mkdir(path)
-    for page, url in page_generator:
-        with open(os.path.join(path, url), 'w+') as file:
-            print(page, file=file)
+    namespace = b'A'
+    for article in file.articles():
+        if article['namespace'] != namespace:
+            continue
+        body = file.get_article_by_index(
+            article['index'], follow_redirect=False)[0]
+        if not body:
+            continue
+        else:
+            url = article['url']
+            with open(os.path.join(path, url), 'w+') as output_file:
+                print(body, file=output_file)
 
 
 def main():
-    test_zim(filename="../data/wiktionary_vi_all_nopic_2016-06.zim")
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--mode', '-m', help="'f' for printing .html files; 'u' for printing urls as a list",
+                        required=True)
+    parser.add_argument('--input', '-i', help="The input zim file", required=True)
+    parser.add_argument('--output', '-o', help="The directory of the output html", required=False)
+    args = parser.parse_args()
+
+    if args.mode == 'f':
+        if not args.output:
+            print("Please specify the output directory with -'o' flag.")
+        else:
+            print_html(filename=args.input, path=args.output)
+    elif args.mode == 'u':
+        print_url(filename=args.input)
+    else:
+        print("Please specify a mode.")
 
 
 if __name__ == '__main__':
