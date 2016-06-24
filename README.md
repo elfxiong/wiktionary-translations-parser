@@ -42,7 +42,7 @@ To install one by one, use `pip install [PACKAGE NAME]`.
 
 ## Usage
 
-[parser.py](#parser-py) or [extract.py](#extract-py).
+[parser.py](#parserpy) or [extract.py](#extractpy).
 
 ### parser.py
 ```
