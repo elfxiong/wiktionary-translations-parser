@@ -6,15 +6,13 @@ For some editions of Wiktionary, extract translation pairs on each page.
 
 [ZIM](https://en.wikipedia.org/wiki/ZIM_%28file_format%29) is a file format that stores wiki content for offline usage.
 
-- Wiktionary dumps in ZIM format can be obtained from [kiwix](https://download.kiwix.org/zim/wiktionary/).
+- Wiktionary dumps in `.zim` format can be obtained from [kiwix](https://download.kiwix.org/zim/wiktionary/).
 
-The input to this program can be either a ZIM file containing all pages of a Wiktionary edition, or a file containing a list of Wiktionary urls, one url on each line.
-
-See [usage](#usage) for more detail.
+The input to this program can be either a `.zim` containing all pages of a Wiktionary edition, or a list of urls. See [usage](#usage) for more detail.
 
 ## Output
 
-Each translation tuple consists of these fields:
+Each line consists of these fields:
 
 - `edition`: the edition of Wiktionary the translation pair is from. It is a 2-3 letter code used in the Wiktionary url.
 - `headword`: the word that is being translated.
@@ -30,14 +28,15 @@ The output is in CSV format with these eight columns.
 ## Dependencies
 
 - `beautifulsoup4`: used for parsing html.
-- `requests`: used to make http calls and fetch `.html` from the Internet. Will eventually be removed as we will be dealing with locally stored files.
-- `pycountry` and `iso-639`: used for conversion between language codes. Used when you do not specify an Wiktionary edition code.
-- `repoze.lru`: LRU cache which significantly improve performance for `.zim`.
+- `requests`: used to make http calls and fetch `.html` from the Internet. Required if using Internet as data source.
+- `pycountry` and `iso-639`: used for conversion between language codes. Required if you do not specify an Wiktionary edition code.
+- `repoze.lru`: LRU cache which significantly improve performance for `.zim`. Recommended if using `.zim` as data source.
 
 Install in a `virtualenv` as appropriate.
 To install all dependencies (you don't have to):
-
-    $ pip install -r requirements.txt
+```
+$ pip install -r requirements.txt
+```
 
 To install one by one, use `pip install [PACKAGE NAME]`.
 
@@ -62,29 +61,31 @@ optional arguments:
 ```
 
 - Support for using `.zim` file has only been tested for `Python 3.5`. It is probably not working for `Python 2` at this moment.
-- `parser.py` should be able to automatically figure out the Wiktionary edition and choose the correct parser based on the url or the metadata in ZIM. If it doens't use the parser you expect, please use `-e` to explicitly specify the edition.
+- `parser.py` should be able to automatically figure out the Wiktionary edition and choose the correct parser based on the url or the metadata in `.zim`. If it doens't use the parser you expect, please use `-e` to explicitly specify the edition.
 
 ### Use ZIM file as data source
 
-A ZIM file contains all pages in a Wiktionary edition.
+A '.zim` file contains all pages in a Wiktionary edition.
 
 To run `parser.py` with `.zim` as input:
 ```
-$ python parser.py -z [zimfile]
+$ python parser.py -z [ZIM FILE]
 ```
 
 ### Use Internet as data source
 
-Instead of using a ZIM file, you can also provide a list of urls to specify the pages to extract. The parser will fetch html from the urls to use as data source.
+Instead of using a `.zim` file, you can also provide a list of urls to specify the pages to extract. The parser will fetch html from the urls to use as data source.
 
 If you already have a file with a list of urls:
 ```
-$ python parser.py -ul [urlfile]
+$ python parser.py -ul [FILE]
 ```
+- The file should contain one url on each line.
+- All urls should come from the same Wiktionary edition.
 
-If you want to use the urls from a ZIM file, which contains all the urls from a Wiktionary edition:
+If you want to use the urls from a `.zim` file, which contains all the urls from a Wiktionary edition:
 ```
-$ python parser.py -uz [zimfile]
+$ python parser.py -uz [ZIM FILE]
 ```
 
 ### To run the `main()` of a particular parser or `extract.py`
@@ -102,7 +103,7 @@ This is telling python to run the `main()` in a file in the module.
 
 ## Progress
 
-- Tested with ZIM file: `ja`, `de`
+- Tested with `.zim` file: `ja`, `de`
 - Tested with some representative `.html` pages: `az` `fr` `ru` `tr` `uz` `vi`
 - Started: `pl`
 
