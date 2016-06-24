@@ -127,7 +127,7 @@ def use_url_zim(filename, edition=None):
 
     print("Start to uncompress zim file to get the url list...")
     from zim.extract import yield_url
-    url_list = ["https://{}.wiktionary.org/wiki/{}".format(edition, url[:-5]) for url in yield_url(filename)]
+    url_list = ["https://{}.wiktionary.org/wiki/{}".format(edition, url[:-5]) for url in yield_url(file=file)]
     print("Got {} urls from the zim file".format(len(url_list)))
 
     print(','.join(headers))
