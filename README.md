@@ -42,6 +42,9 @@ To install one by one, use `pip install [PACKAGE NAME]`.
 
 ## Usage
 
+[parser.py](#parser-py) or [extract.py](#extract-py).
+
+### parser.py
 ```
 usage: parser.py [-h] (--url_zim URL_ZIM | --url_list URL_LIST | --zim ZIM)
                  [--edition EDITION]
@@ -63,16 +66,16 @@ optional arguments:
 - Support for using `.zim` file has only been tested for `Python 3.5`. It is probably not working for `Python 2` at this moment.
 - `parser.py` should be able to automatically figure out the Wiktionary edition and choose the correct parser based on the url or the metadata in `.zim`. If it doens't use the parser you expect, please use `-e` to explicitly specify the edition.
 
-### Use ZIM file as data source
+#### Use ZIM file as data source
 
-A '.zim` file contains all pages in a Wiktionary edition.
+A `.zim` file contains all pages in a Wiktionary edition.
 
 To run `parser.py` with `.zim` as input:
 ```
 $ python parser.py -z [ZIM FILE]
 ```
 
-### Use Internet as data source
+#### Use Internet as data source
 
 Instead of using a `.zim` file, you can also provide a list of urls to specify the pages to extract. The parser will fetch html from the urls to use as data source.
 
@@ -88,15 +91,44 @@ If you want to use the urls from a `.zim` file, which contains all the urls from
 $ python parser.py -uz [ZIM FILE]
 ```
 
-### To run the `main()` of a particular parser or `extract.py`
+### extract.py
+
+```
+$ python -m zim.extract
+```
+
+`-m` is telling python to run a file in the module as `main()`.
+
+- Notice there is no `.py` extension.
+
+#### Print a list of urls in ZIM file
+
+```
+$ python -m zim.extract -i ZIMFILE url
+```
+
+If you want full url:
+```
+$ python -m zim.extract -i ZIMFILE url -f
+```
+The edition will be inferred from metadata in `.zim`. If you want to explicitly specify the edition instead:
+```
+$ python -m zim.extract -i ZIMFILE url -f -e EDITION
+```
+
+
+#### Pour all html pages in ZIM file
+
+```
+$ python -m zim.extract -i ZIMFILE html -o OUTPUT_DIRECTORY
+```
+
+### Run individual parsers
 
 ```
 $ python -m parser.parse_[EDITION]
 ```
-or
-```
-$ python -m zim.extract
-```
+
 This is telling python to run the `main()` in a file in the module.
 
 - Notice there is no `.py` extension.
