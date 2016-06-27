@@ -28,7 +28,7 @@ headers = ['edition', 'headword', 'head_lang', 'translation', 'trans_lang', 'tra
 
 # dynamically loading all modules
 def import_all_parsers():
-    parser_list = ['ja', 'vi', 'tr', 'fr', 'ru', 'uz', 'de', 'az']
+    parser_list = ['ja', 'vi', 'tr', 'fr', 'ru', 'uz', 'de', 'az', 'nl']
     for parser_name in parser_list:
         module_to_import = '.parse_' + parser_name
         module = importlib.import_module(module_to_import, package='parser')
