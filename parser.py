@@ -101,7 +101,7 @@ def test_zim(filename, edition=None):
 
 def test_html(filename, edition=None):
     with open(filename) as file:
-        url_list = file.readlines()
+        url_list = file.read().splitlines()
 
     if edition is None:
         edition = infer_edition_from_url(url_list[0])
