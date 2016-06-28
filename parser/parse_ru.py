@@ -14,16 +14,18 @@ class RuParser(GeneralParser):
         self.edition = 'ru'
     
     tested_url = [
+        "https://ru.wiktionary.org/wiki/*kukoba",
         "https://ru.wiktionary.org/wiki/blood",
         "https://ru.wiktionary.org/wiki/flower",
         "https://ru.wiktionary.org/wiki/house",
         "https://ru.wiktionary.org/wiki/speak",
         "https://ru.wiktionary.org/wiki/%D0%B4%D0%BE%D0%BC",
-        "https://ru.wiktionary.org/wiki/говорить"]
+        "https://ru.wiktionary.org/wiki/говорить"
+    ]
         
     # parse through a translation table in the Russian edition of Wiktionary
     def parse_translation_table_russian(self, table):
-        
+    
         for li in table.find_all('li'):
             if not isinstance(li, Tag):
                 continue
@@ -40,8 +42,11 @@ class RuParser(GeneralParser):
             # remove the lang code from the lang name
             lang_name = lang_name[:-len(lang_code)]
 
-            # format the text
-            t = remove_parenthesis(text[1])
+            if len(text) > 1:
+                t = remove_parenthesis(text[1])
+            else:
+                t = remove_parenthesis(text[0])
+            
             trans_list = re.split(COMMA_OR_SEMICOLON, t)
 
             for trans in trans_list:
@@ -60,6 +65,18 @@ class RuParser(GeneralParser):
                 for translations in text:
                     yield translations
 
+    # parse through an unordered list in the Russian edition of wiktionary for part of speech
+    def parse_unordered_list_russian(self, ulist):
+        for li in ulist.find_all('li'):
+            if not li.get_text() == '':
+                # format the text (specific to RU)
+                text = li.get_text().split(u'—')
+                if len(text) > 1:
+                    text = text[1].strip()
+                else:
+                    text = text[0].strip()
+                return text
+
     def generate_translation_tuples(self, soup):
         """
         A generator of translation tuples
@@ -67,18 +84,21 @@ class RuParser(GeneralParser):
         :return: tuple of the form (edition, headword, head_lang, translation, trans_lang, trans_lang_code, part_of_speech)
         """
 
+        #print(soup)
+
         # Find the headword of the page
         title = soup.find('h1', id='firstHeading')
-        title = title.text
+        if title:
+            title = title.text
         
         # Find the table of contents
         toc = soup.find('div', id='mw-content-text')
         
         # Variable to keep track of important information
         page_state = {'headword': title,
-                      'headword_lang': None,
-                      'part_of_speech': None,
-                      'pronunciation': None,
+                      'headword_lang': '',
+                      'part_of_speech': '',
+                      'pronunciation': '',
                       'pos_region': False, # pos_region is specific to Russian
                       'translation_region': False,
                       'pro_region': False}
@@ -89,32 +109,35 @@ class RuParser(GeneralParser):
                 level = get_heading_level(element.name)
                 
                 # in the Russian edition, h1s always contain the language
-                if level == 1: 
+                if level == 1:
                     page_state['headword_lang'] = get_heading_text(element)
                     page_state['translation_region'] = False
+                    page_state['pos_region'] = True #part of speech paragraph tag MIGHT follow
 
                 # Grab the part of speech, always contained in a level 3
                 # sometimes the part of speech is preceded by headword
-                # this could also be pronunciations
-                elif level == 3:
-                    first_headline = element.find(class_='mw-headline')
-                    if first_headline.text == u'Морфологические и синтаксические свойства':
+                elif level == 3 or level == 4:
+                    text = element.get_text()
+                    text = remove_parenthesis(text).strip()
+                    
+                    if text == u'Морфологические и синтаксические свойства':
                         page_state['pos_region'] = True
-                    elif first_headline.text == u'Перевод':
+                    elif text == u'Перевод':
                         page_state['translation_region'] = True
-                    elif first_headline.text == u'Произношение':
+                        page_state['pos_region'] = False
+                    elif text == u'Произношение':
                         page_state['translation_region'] = False
                         page_state['pro_region'] = True
-                    else:
-                        page_state['translation_region'] = False
-                        
-                # A level 4 might contain a translation list / paragraph
-                elif level == 4:
-                    if get_heading_text(element) == u'Значение':
+                    elif text == u'Значение':
                         if not page_state['headword_lang'] == u'Русский':
                             page_state['translation_region'] = True
+                            page_state['pos_region'] = False
+                        else:
+                            page_state['translation_region'] = False
+                            page_state['pos_region'] = False
                     else:
                         page_state['translation_region'] = False
+                        page_state['pos_region'] = False
                         
                 # grab the part of speech
                 elif element.name == 'p' and page_state['pos_region']:
@@ -122,6 +145,12 @@ class RuParser(GeneralParser):
                     if not bold_word: # if the word is not bold, it's the pos
                         page_state['part_of_speech'] = element.get_text().split(',')[0]
                         page_state['pos_region'] = False
+
+                # parse through an unordered list to grab part of speech
+                elif element.name == 'ul' and page_state['pos_region']:
+                    print(1)
+                    page_state['part_of_speech'] = self.parse_unordered_list_russian(element)
+                    page_state['pos_region'] = False
                         
                 # parse through a paragraph to grab translations
                 elif element.name == 'p' and page_state['translation_region']:
@@ -134,27 +163,35 @@ class RuParser(GeneralParser):
                     for translation in self.parse_ordered_list_russian(element):
                         yield (self.edition, page_state['headword'], page_state['headword_lang'], translation.strip(),
                                u'Русский', 'ru', page_state['part_of_speech'])
-
-                # parse through an ordered list to grab pronunciations
                                        
                 # parse through a table to grab translations
                 elif element.name == 'table' and page_state['translation_region']:
                     for translation, lang, lang_code in self.parse_translation_table_russian(element):
-                        print(self.edition, page_state['headword'], page_state['headword_lang'], 
-                               translation.strip(), lang, lang_code, page_state['part_of_speech'])
                         yield (self.edition, page_state['headword'], page_state['headword_lang'], 
                                translation.strip(), lang, lang_code, page_state['part_of_speech'])
                 else:
                     page_state['translation_region'] = False
 
+        yield('', '', '', '', '','', '')
+'''
+        
 def main():
     
+    parser = RuParser()
+    text_file = open("data/html_ru.txt", "r")
+    url_list = text_file.read().split('\n')
+    for url in url_list:
+        soup = get_html_tree_from_url(url)
+        for tup in parser.generate_translation_tuples(soup):
+            if not ''.join(tup) == '':
+               print(','.join(tup))
+'''
+def main():
     parser = RuParser()
     for url in parser.tested_url:
         soup = get_html_tree_from_url(url)
         for tup in parser.generate_translation_tuples(soup):
             print(','.join(tup))
-
     
 if __name__ == '__main__':
     main()
