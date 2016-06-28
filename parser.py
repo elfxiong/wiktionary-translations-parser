@@ -28,7 +28,7 @@ headers = ['edition', 'headword', 'head_lang', 'translation', 'trans_lang', 'tra
 
 # dynamically loading all modules
 def import_all_parsers():
-    parser_list = ['ja', 'vi', 'tr', 'fr', 'ru', 'uz', 'de', 'az']
+    parser_list = ['ja', 'vi', 'tr', 'fr', 'ru', 'uz', 'de', 'az', 'nl']
     for parser_name in parser_list:
         module_to_import = '.parse_' + parser_name
         module = importlib.import_module(module_to_import, package='parser')
@@ -99,38 +99,60 @@ def test_zim(filename, edition=None):
                 continue
 
 
-def test_html(edition=None):
+def test_html(filename, edition=None):
+    with open(filename) as file:
+        url_list = file.read().splitlines()
+
     if edition is None:
-        import_all_parsers()
-        print(','.join(headers))
-        urls_lists = [parser.tested_url for parser in parsers.values()]
-        test_urls = [url for sub_list in urls_lists for url in sub_list]
-        for url in test_urls:
-            edition = infer_edition_from_url(url)
-            soup = get_html_tree_from_url(url)
-            parser = get_parser(edition)
-            for tup in parser.generate_translation_tuples(soup):
-                print(",".join(tup))
-    else:
-        parser = get_parser(edition)
-        print(','.join(headers))
-        for url in parser.tested_url:
-            soup = get_html_tree_from_url(url)
-            for tup in parser.generate_translation_tuples(soup):
-                print(','.join(tup))
+        edition = infer_edition_from_url(url_list[0])
+    parser = get_parser(edition)
+
+    print(','.join(headers))
+    for url in url_list:
+        soup = get_html_tree_from_url(url)
+        for tup in parser.generate_translation_tuples(soup):
+            print(','.join(tup))
+
+
+def use_url_zim(filename, edition=None):
+    file = ZimFile(filename=filename)
+    if not edition:
+        print("Edition not provided. Trying to figure out the edition...")
+        import parser.lang_code_conversion as languages
+        edition_lang_code = file.metadata()['language'].decode('utf-8')
+        edition = languages.get_wikt_code_from_iso639_3(edition_lang_code)
+
+    print("Edition: {}".format(edition))
+    parser = get_parser(edition)
+
+    print("Start to uncompress zim file to get the url list...")
+    from zim.extract import yield_url
+    url_list = ["https://{}.wiktionary.org/wiki/{}".format(edition, url[:-5]) for url in yield_url(file=file)]
+    print("Got {} urls from the zim file".format(len(url_list)))
+
+    print(','.join(headers))
+    for url in url_list:
+        soup = get_html_tree_from_url(url)
+        for tup in parser.generate_translation_tuples(soup):
+            print(','.join(tup))
 
 
 def main():
     setup_logger()
     parser = argparse.ArgumentParser()
-    parser.add_argument('--zim', '-z', help='use zim file instead of html')
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument('--url_zim', '-uz', help='use a zim file as the source of urls and get html from the Internet')
+    group.add_argument('--url_list', '-ul', help='use a file containing a list of urls and get html from the Internet')
+    group.add_argument('--zim', '-z', help='use the zim file as input instead of html')
     parser.add_argument('--edition', '-e', help='explicitly specify the language edition, for either html or zim')
 
     args = parser.parse_args()
     if args.zim:
         test_zim(args.zim, args.edition)
-    else:
-        test_html(args.edition)
+    elif args.url_list:
+        test_html(args.url_list, args.edition)
+    elif args.url_zim:
+        use_url_zim(args.url_zim, args.edition)
 
 
 if __name__ == '__main__':

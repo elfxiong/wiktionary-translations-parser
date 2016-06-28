@@ -1,3 +1,5 @@
+#TODO: add pronunciation (very difficult--inconsistent formatting)
+
 # -*- coding: utf-8 -*-
 import re
 
@@ -6,11 +8,10 @@ from parser.general import GeneralParser
 from parser.helper import get_html_tree_from_url, remove_parenthesis, COMMA_OR_SEMICOLON
 
 
-class FrParser(GeneralParser):
+class NlParser(GeneralParser):
     def __init__(self):
-        super(FrParser, self).__init__()
-        self.edition = 'fr'
-    
+        super(NlParser, self).__init__()
+        self.edition = 'nl'
 
     def generate_translation_tuples(self, soup):
         """ A generator of translation tuples
@@ -27,7 +28,7 @@ class FrParser(GeneralParser):
                       'headword_lang': '',
                       'part_of_speech': '',
                       'pronunciation': ''}
-        edition = "fr"
+        edition = "nl"
         
         if not toc:
             return  # skip it if there's no table of contents
@@ -38,24 +39,19 @@ class FrParser(GeneralParser):
 
                 if level == 2:  # it is a header tag; headword language almost always appears here
                     page_state['headword_lang'] = self.get_heading_text(element)
-                elif level == 3:  # it is an h3; part of speech almost always appears here
+                elif level == 4:  # it is an h4; part of speech almost always appears here
                     page_state['part_of_speech'] = self.get_heading_text(element)
                 elif element.name == "p":  # is a paragraph tag
                     bold_word = element.b
                     if bold_word:
                         page_state['headword'] = bold_word.get_text()   # the headword is usually just bolded
-                        link = element.a    # pronunciation usually appears right after headword in an <a> tag
-                        if link:
-                            for child in link.findChildren():
-                                if child.has_attr('class') and "API" in child.get("class"):
-                                    page_state['pronunciation'] = child.get_text()
-                elif element.name == "h4":
+                elif element.name == "h5":
                     first_headline = element.find(class_="mw-headline")
-                    if first_headline and first_headline.text.strip() == "Traductions":  # this is a translation header
+                    if first_headline and first_headline.text.strip() == "Vertalingen":  # this is a translation header
                         # this is a translation table
                         while True:     # loop through all consecutive tables; they all have translations
                             table = element.find_next_sibling()
-                            if table.has_attr("class") and "boite" in table.get("class"):
+                            if table.has_attr("class") and "NavFrame" in table.get("class"):
                                 for translation, lang, lang_code in self.parse_translation_table(table):
                                     yield (
                                         edition, page_state['headword'], page_state['headword_lang'], translation, lang,
@@ -82,7 +78,7 @@ class FrParser(GeneralParser):
             lang_name = text[0]
 
             # language code is usually in super script
-            lang_code = li.find(class_="trad-existe")
+            lang_code = li.find(class_="trad-sup-code")
             if lang_code:
                 lang_code = lang_code.text.strip()[1:-1]
             else:
@@ -97,12 +93,11 @@ class FrParser(GeneralParser):
                 translation = trans.split('(')[0].strip()
                 yield (translation, lang_name.strip(), lang_code)
 
-
 def main():
-    parser = FrParser()
+    parser = NlParser()
 
     # specify a list of URLs to pull data from
-    text_file = open("data/html_fr.txt", "r")
+    text_file = open("data/html_nl.txt", "r")
     url_list = text_file.read().split('\n')
     for url in url_list:    # get all translations from all specified URLs
         soup = get_html_tree_from_url(url)

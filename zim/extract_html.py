@@ -17,7 +17,7 @@ def read_zim_file(file):
             continue
         else:
             url = article['url']
-            print("https://fr.wiktionary.org/wiki/", url[:-5], sep='')
+            print("https://nl.wiktionary.org/wiki/", url[:-5], sep='')
             yield (body.decode('utf-8'), url)
 
 
@@ -46,7 +46,7 @@ def test_zim(filename, edition=None):
 
 
 def main():
-    filename = "wiktionary_fr_all_nopic_2016-05.zim"
+    filename = "wiktionary_nl_all_nopic_2016-05.zim"
     file = ZimFile(filename=filename)
     for read in read_zim_file(file):
         pass
