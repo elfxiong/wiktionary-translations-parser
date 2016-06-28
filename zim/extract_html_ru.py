@@ -1,7 +1,8 @@
 """Dump the html pages out of .zim"""
 import os
 from zim.zimpy_p3 import ZimFile
-
+from parser.parse_ru import RuParser
+from parser.helper import infer_edition_from_url, get_html_tree_from_string, get_html_tree_from_url
 
 def read_zim_file(file):
     # print(file.metadata())
@@ -17,7 +18,7 @@ def read_zim_file(file):
             continue
         else:
             url = article['url']
-            print("https://nl.wiktionary.org/wiki/", url[:-5], sep='')
+            print("https://ru.wiktionary.org/wiki/", url[:-5], sep='')
             yield (body.decode('utf-8'), url)
 
 
@@ -46,7 +47,8 @@ def test_zim(filename, edition=None):
 
 
 def main():
-    filename = "wiktionary_nl_all_nopic_2016-05.zim"
+
+    filename = "wiktionary_ru_all_nopic_2016-05.zim"
     file = ZimFile(filename=filename)
     for read in read_zim_file(file):
         pass
