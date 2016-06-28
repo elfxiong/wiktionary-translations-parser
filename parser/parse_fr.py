@@ -37,20 +37,19 @@ class FrParser(GeneralParser):
                 level = self.get_heading_level(element.name)
 
                 if level == 2:  # it is a header tag; headword language almost always appears here
-                    page_state['headword_lang'] = self.get_heading_text(element)
+                    page_state['headword_lang'] = self.get_heading_text(element).strip()
                 elif level == 3:  # it is an h3; part of speech almost always appears here
-                    page_state['part_of_speech'] = self.get_heading_text(element)
+                    page_state['part_of_speech'] = self.get_heading_text(element).strip()
                 elif element.name == "p":  # is a paragraph tag
                     bold_word = element.b
                     if bold_word:
                         page_state['headword'] = bold_word.get_text()   # the headword is usually just bolded
-                        link = element.a    # pronunciation usually appears right after headword in an <a> tag
+                        link = element.span    # pronunciation usually appears right after headword in an <a> tag
                         if link:
-                            for child in link.findChildren():
-                                if child.has_attr('class') and "API" in child.get("class"):
-                                    page_state['pronunciation'] = child.get_text()
+                            if link.has_attr('class') and "API" in link.get("class"):
+                                page_state['pronunciation'] = link.get_text()
                 elif element.name == "h4":
-                    first_headline = element.find(class_="mw-headline")
+                    first_headline = element.find("span")
                     if first_headline and first_headline.text.strip() == "Traductions":  # this is a translation header
                         # this is a translation table
                         while True:     # loop through all consecutive tables; they all have translations
