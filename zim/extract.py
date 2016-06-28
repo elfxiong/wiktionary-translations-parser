@@ -50,7 +50,7 @@ def print_html(filename, path):
         else:
             url = article['url']
             with open(os.path.join(path, url), 'w+') as output_file:
-                print(body, file=output_file)
+                print(body.decode('utf-8'), file=output_file)
 
 
 def main():
