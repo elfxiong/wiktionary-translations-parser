@@ -30,10 +30,11 @@ class PlParser(GeneralParser):
                 text = li.get_text().split(':')
                 lang_name = text[0]
                 lang_code = ''
-                trans_list = re.split(COMMA_OR_SEMICOLON, text[1])
-                for trans in trans_list:
-                    translation = remove_parenthesis(trans).strip()
-                    yield (translation, lang_name, lang_code)
+                if len(text) > 1:
+                    trans_list = re.split(COMMA_OR_SEMICOLON, text[1])
+                    for trans in trans_list:
+                        translation = remove_parenthesis(trans).strip()
+                        yield (translation, lang_name, lang_code)
     
     def generate_translation_tuples(self, soup):
         """
@@ -44,7 +45,7 @@ class PlParser(GeneralParser):
         """
     
         # Find the headword of the page
-        title = soup.find('h1', id='firstHeading')
+        title = soup.find('title')
         title = title.text
 
         # Find the table of contents

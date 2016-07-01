@@ -42,7 +42,7 @@ def get_heading_text(tag):
 def get_html_tree_from_url(url):
     html = requests.get(url)
     # print(html.content)
-    soup = BeautifulSoup(html.content, 'html.parser')
+    soup = BeautifulSoup(html.content, 'lxml')
     return soup
 
 
@@ -77,7 +77,9 @@ def remove_parenthesis(string):
             ret += i
     return ret
 
-
 def remove_all_punctuation(line):
     punc = str.maketrans('', '', string.punctuation)
     return line.translate(punc).replace('→', '').strip()
+
+def remove_comma_period(line):
+    return re.sub('[,.]', '', line)
