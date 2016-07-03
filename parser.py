@@ -1,10 +1,9 @@
 import argparse
-import sys
 import logging
-
+import sys
+import importlib
 import os
 from parser.helper import infer_edition_from_url, get_html_tree_from_string, get_html_tree_from_url
-import importlib
 
 if sys.version_info[0:3] >= (3, 0, 0):  # python 3 (tested)
     from zim.zimpy_p3 import ZimFile
@@ -64,19 +63,16 @@ def read_zim_file(file):
             yield (body.decode('utf-8'))
 
 
-def test_zim(filename, edition=None):
+def parse_zim(filename, edition=None):
+    """Parse html in zim file"""
     file = ZimFile(filename=filename)
-    # file.list_articles_by_url()
     edition_lang_code = file.metadata()['language'].decode('utf-8')
-    # print(edition_lang_code)
 
     if edition:
         edition_wikt_code = edition
-        # print(edition_wikt_code)
     else:
         import parser.lang_code_conversion as languages
         edition_wikt_code = languages.get_wikt_code_from_iso639_3(edition_lang_code)
-        # print(edition_wikt_code)
 
     print(','.join(headers))
     # get the parser class
@@ -99,12 +95,16 @@ def test_zim(filename, edition=None):
                 continue
 
 
-def test_html(filename, edition=None):
+def parse_online_html_provided_url_list(filename, edition=None):
+    """Use the url list provided and parse online html"""
     with open(filename) as file:
         url_list = file.read().splitlines()
 
-    if edition is None:
+    if not edition:
+        # print("Edition not provided. Trying to figure out the edition...")
         edition = infer_edition_from_url(url_list[0])
+
+    # print("Edition: {}".format(edition))
     parser = get_parser(edition)
 
     print(','.join(headers))
@@ -114,7 +114,8 @@ def test_html(filename, edition=None):
             print(','.join(tup))
 
 
-def use_url_zim(filename, edition=None):
+def parse_online_html_provied_zim(filename, edition=None):
+    """Use the urls extracted from ZIM and parse online html"""
     file = ZimFile(filename=filename)
     if not edition:
         print("Edition not provided. Trying to figure out the edition...")
@@ -148,11 +149,11 @@ def main():
 
     args = parser.parse_args()
     if args.zim:
-        test_zim(args.zim, args.edition)
+        parse_zim(args.zim, args.edition)
     elif args.url_list:
-        test_html(args.url_list, args.edition)
+        parse_online_html_provided_url_list(args.url_list, args.edition)
     elif args.url_zim:
-        use_url_zim(args.url_zim, args.edition)
+        parse_online_html_provied_zim(args.url_zim, args.edition)
 
 
 if __name__ == '__main__':

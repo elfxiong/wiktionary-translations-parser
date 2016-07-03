@@ -9,6 +9,8 @@ HEADING_TAG = re.compile(r'^h(?P<level>[1-6])$', re.I)
 
 
 class GeneralParser:
+    """Provides a framework for writing individual parsers"""
+
     def __init__(self):
         self.edition = None
 
