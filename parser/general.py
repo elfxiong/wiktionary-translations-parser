@@ -28,7 +28,7 @@ class GeneralParser:
         :return: the actual/clean text in the tag
         """
         text = tag.get_text()
-        text = text.split('[')[0]
+        text = text.split('[')[0].strip()
         return text
 
     def parse_translation_table(self, table):
@@ -64,7 +64,7 @@ class GeneralParser:
             # lang_code and transliteration may not exist
             for trans in trans_list:
                 # translation = trans.split('(')[0].strip()
-                translation = re.split(r'[(→]', trans)[0].strip()
+                translation = re.split(r'[(（→]', trans)[0].strip()
                 # Throw out tuples if they have '[['
                 if "[[" in translation:
                     continue
