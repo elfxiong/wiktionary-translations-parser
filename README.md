@@ -31,6 +31,7 @@ The output is in CSV format with these eight columns.
 - `requests`: used to make http calls and fetch `.html` from the Internet. Required if using Internet as data source.
 - `pycountry` and `iso-639`: used for conversion between language codes. Required if you do not specify an Wiktionary edition code.
 - `repoze.lru`: LRU cache which significantly improve performance for `.zim`. Recommended if using `.zim` as data source.
+- `lxml`: html parser that increases speed and imporves quality of html parsing. If not installed, python's builtin html parser will be used.
 
 Install in a `virtualenv` as appropriate.
 To install all dependencies (you don't have to):
@@ -135,16 +136,22 @@ This is telling python to run the `main()` in a file in the module.
 
 ## Progress
 
-- Tested with `.zim` file: `ja`, `de`
-- Tested with some representative `.html` pages: `az` `fr` `ru` `tr` `uz` `vi`
-- Started: `pl`
+**This section needs update.**
+
+- Tested with `.zim` file: `ja`, `de`, `vi`
+- Tested with some representative `.html` pages: `az` `fr` `ru` `tr` `uz` `pl`
+- Started:
+
+## Known Issues
+
+- `lxml` is required for to produce decent output from `vi` edition's `.zim` file.
+There are too much invalid html in `vi` edition's dump, but `lxml` happens to handle the invalid html in a way that produces desirable output. Please install `lxml` before using the parser to parse `vi` edition `.zim`.
+[When given bad html, different parsers will give different results.](https://www.crummy.com/software/BeautifulSoup/bs4/doc/#differences-between-parsers)
+
+- Html in `.zim` may be differnt from html you see online. Please note this when writing your parsers or modifying existing parsers.
+    - Some html in *latest* `.zim` are *outdated*. Html pages in `.zim` has a date at the bottom indicating when it was pulled from online.
+    - More often, html in `.zim` miss some class attributes. For example, if you use `class="translations"` to search for translations tables, the class may not exist in the html pages in `.zim`.
 
 ## Todo
 
-- Write parsers for two or three editions.
-	- Run parsers on zim files (entire foreign editions of Wiktionary)
-- Generalize them and create a skeleton for writing other parsers.
-  - make it so that we need minimal changes in order to parse another edition
-- Generate parsers for editions of interest.
-- Modify current scripts to include pronunciation extraction from foreign editions of Wiktionary.
 - Use translation scripts as base for derivation-table-parsing scripts.
