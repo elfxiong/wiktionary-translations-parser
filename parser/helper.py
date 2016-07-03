@@ -7,6 +7,14 @@ import re
 import requests
 from bs4 import BeautifulSoup, Tag
 
+html_parser = 'html.parser'
+try:
+    import lxml
+
+    html_parser = 'lxml'
+except ImportError:
+    pass
+
 HEADING_TAG = re.compile(r'^h(?P<level>[1-6])$', re.I)
 COMMA_OR_SEMICOLON = re.compile('[,;]')
 PARENTHESIS_WITH_TEXT = re.compile(r'\([^()]*\)')  # no nesting
@@ -30,12 +38,12 @@ def get_heading_level(tag):
 def get_html_tree_from_url(url):
     html = requests.get(url)
     # print(html.content)
-    soup = BeautifulSoup(html.content, 'lxml')
+    soup = BeautifulSoup(html.content, html_parser)
     return soup
 
 
 def get_html_tree_from_string(html):
-    return BeautifulSoup(html, 'html.parser')
+    return BeautifulSoup(html, html_parser)
 
 
 def remove_parenthesis2(string):
@@ -65,9 +73,11 @@ def remove_parenthesis(string):
             ret += i
     return ret
 
+
 def remove_all_punctuation(line):
     punc = str.maketrans('', '', string.punctuation)
     return line.translate(punc).replace('→', '').strip()
+
 
 def remove_comma_period(line):
     return re.sub('[,.]', '', line)
