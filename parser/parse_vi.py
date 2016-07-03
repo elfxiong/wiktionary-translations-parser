@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
-from collections import defaultdict
-
 from bs4 import Tag
+from collections import defaultdict
 from parser.general import GeneralParser
 from parser.helper import get_html_tree_from_url
 
@@ -61,9 +60,9 @@ class ViParser(GeneralParser):
                       'translations': defaultdict(list)}
         for element in page_content.children:
             if isinstance(element, Tag):  # it could be a Tag or a NavigableString
-                pronunciation = element.find(attrs={'title': "Wiktionary:IPA"})
+                pronunciation = element.find(class_='IPA')
                 if pronunciation:
-                    page_state['pronunciation'] = pronunciation.text
+                    page_state['pronunciation'] = pronunciation.text.strip()
 
                 level = self.get_heading_level(element.name)
                 if level == 2:
@@ -82,7 +81,7 @@ class ViParser(GeneralParser):
                 #     page_state['headword'] = bold_word.get_text()
                 # print("headword: ", bold_word.get_text().strip())
                 elif element.name == "h4":
-                    first_headline = element.find(class_="mw-headline")
+                    first_headline = element.find()
                     if first_headline and first_headline.text.strip() == u"Dịch":  # this translation header
                         table = element.find_next_sibling(class_="columns")
                         translation_tup_list = list(self.parse_translation_table(table))
