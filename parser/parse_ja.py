@@ -67,7 +67,7 @@ class JaParser(GeneralParser):
             if isinstance(element, Tag):
                 pronunciation = element.find(class_="IPA")
                 if pronunciation:
-                    page_state['pronunciation'] = pronunciation.text
+                    page_state['pronunciation'] = pronunciation.text.strip()
 
                 level = self.get_heading_level(element.name)
                 if level == 2:
