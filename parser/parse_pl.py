@@ -4,7 +4,7 @@ import re
 
 from bs4 import Tag
 from parser.general import GeneralParser
-from .helper import get_heading_level, get_heading_text, get_html_tree_from_url, remove_parenthesis
+from .helper import get_heading_level, get_html_tree_from_url, remove_parenthesis
 
 COMMA_OR_SEMICOLON = re.compile('[,;]')
 
@@ -64,7 +64,7 @@ class PlParser(GeneralParser):
             
                 # Grab the language of the headword
                 if level == 2:
-                    text = get_heading_text(element)
+                    text = self.get_heading_text(element)
                     text = text[text.find("(")+1:text.find(")")] # find language within heading
                     if text[:5] == u'język': # remove extra word (most of the time)
                         text = text[6:]

@@ -27,18 +27,6 @@ def get_heading_level(tag):
     return None
 
 
-def get_heading_text(tag):
-    """
-    Extract the text of the heading, discarding "[edit]".
-    May need to be modified to work for more complex headings.
-    :param tag: a Tag object. It should be one of the <h?> tags.
-    :return: the actual/clean text in the tag
-    """
-    text = tag.get_text()
-    text = text.split('[')[0]
-    return text
-
-
 def get_html_tree_from_url(url):
     html = requests.get(url)
     # print(html.content)

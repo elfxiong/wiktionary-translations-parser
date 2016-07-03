@@ -3,7 +3,7 @@ import re
 
 from bs4 import Tag
 from parser.general import GeneralParser
-from .helper import get_heading_level, get_heading_text, get_html_tree_from_url, remove_parenthesis, remove_comma_period
+from .helper import get_heading_level, get_html_tree_from_url, remove_parenthesis, remove_comma_period
 
 COMMA_SEMI_PERIOD = re.compile('[,;.]')
 COMMA_OR_SEMICOLON = re.compile('[,;]')
@@ -130,7 +130,7 @@ class RuParser(GeneralParser):
                 
                 # in the Russian edition, h1s always contain the language
                 if level == 1:
-                    page_state['headword_lang'] = get_heading_text(element).strip()
+                    page_state['headword_lang'] = self.get_heading_text(element).strip()
                     page_state['translation_region'] = False
                     page_state['pos_region'] = True 
 
