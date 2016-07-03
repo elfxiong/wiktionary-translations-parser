@@ -4,8 +4,7 @@ The common methods in different editions
 import string
 
 import re
-import requests
-from bs4 import BeautifulSoup, Tag
+from bs4 import BeautifulSoup
 
 html_parser = 'html.parser'
 try:
@@ -36,6 +35,7 @@ def get_heading_level(tag):
 
 
 def get_html_tree_from_url(url):
+    import requests
     html = requests.get(url)
     # print(html.content)
     soup = BeautifulSoup(html.content, html_parser)
