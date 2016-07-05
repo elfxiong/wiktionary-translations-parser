@@ -4,8 +4,15 @@ The common methods in different editions
 import string
 
 import re
-import requests
-from bs4 import BeautifulSoup, Tag
+from bs4 import BeautifulSoup
+
+html_parser = 'html.parser'
+try:
+    import lxml
+
+    html_parser = 'lxml'
+except ImportError:
+    pass
 
 HEADING_TAG = re.compile(r'^h(?P<level>[1-6])$', re.I)
 COMMA_OR_SEMICOLON = re.compile('[,;]')
@@ -27,27 +34,16 @@ def get_heading_level(tag):
     return None
 
 
-def get_heading_text(tag):
-    """
-    Extract the text of the heading, discarding "[edit]".
-    May need to be modified to work for more complex headings.
-    :param tag: a Tag object. It should be one of the <h?> tags.
-    :return: the actual/clean text in the tag
-    """
-    text = tag.get_text()
-    text = text.split('[')[0]
-    return text
-
-
 def get_html_tree_from_url(url):
+    import requests
     html = requests.get(url)
     # print(html.content)
-    soup = BeautifulSoup(html.content, 'html.parser')
+    soup = BeautifulSoup(html.content, html_parser)
     return soup
 
 
 def get_html_tree_from_string(html):
-    return BeautifulSoup(html, 'html.parser')
+    return BeautifulSoup(html, html_parser)
 
 
 def remove_parenthesis2(string):
@@ -81,3 +77,7 @@ def remove_parenthesis(string):
 def remove_all_punctuation(line):
     punc = str.maketrans('', '', string.punctuation)
     return line.translate(punc).replace('→', '').strip()
+
+
+def remove_comma_period(line):
+    return re.sub('[,.]', '', line)

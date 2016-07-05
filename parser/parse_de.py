@@ -56,8 +56,11 @@ class DeParser(GeneralParser):
                       'translations': defaultdict(list)}
         for element in page_content.children:
             if isinstance(element, Tag):
-                level = self.get_heading_level(element.name)
+                pronunciation = element.find(class_="ipa")
+                if pronunciation:
+                    page_state['pronunciation'] = pronunciation.text.strip()
 
+                level = self.get_heading_level(element.name)
                 if level == 2:
                     if page_state['headword']:
                         yield page_state
@@ -73,11 +76,11 @@ class DeParser(GeneralParser):
                     page_state['part_of_speech'].append(self.get_heading_text(element).split(',')[0].strip())
                     page_state['translation_region'] = False
                 elif element.name == "h4":
-                    first_headline = element.find(class_="mw-headline")
-                    if first_headline is None:
+                    if element.text.strip() == u"Übersetzungen":
+                        page_state['translation_region'] = True
                         continue
-                    if first_headline.text.strip() == u"Übersetzungen":  # this translation header
-                        # this is an translation table
+                    first_headline = element.find()
+                    if first_headline and first_headline.text.strip() == u"Übersetzungen":
                         page_state['translation_region'] = True
                     else:
                         page_state['translation_region'] = False
@@ -89,10 +92,6 @@ class DeParser(GeneralParser):
                         continue
                     pos = page_state['part_of_speech'][-1]
                     page_state['translations'][pos] += translation_tup_list
-
-                pronunciation = element.find(class_="ipa")
-                if pronunciation:
-                    page_state['pronunciation'] = pronunciation.text
 
         if page_state['headword']:
             yield page_state

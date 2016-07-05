@@ -9,6 +9,8 @@ HEADING_TAG = re.compile(r'^h(?P<level>[1-6])$', re.I)
 
 
 class GeneralParser:
+    """Provides a framework for writing individual parsers"""
+
     def __init__(self):
         self.edition = None
 
@@ -28,7 +30,7 @@ class GeneralParser:
         :return: the actual/clean text in the tag
         """
         text = tag.get_text()
-        text = text.split('[')[0]
+        text = text.split('[')[0].strip()
         return text
 
     def parse_translation_table(self, table):
@@ -64,7 +66,7 @@ class GeneralParser:
             # lang_code and transliteration may not exist
             for trans in trans_list:
                 # translation = trans.split('(')[0].strip()
-                translation = re.split(r'[(→]', trans)[0].strip()
+                translation = re.split(r'[(（→]', trans)[0].strip()
                 # Throw out tuples if they have '[['
                 if "[[" in translation:
                     continue

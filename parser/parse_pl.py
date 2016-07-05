@@ -4,7 +4,7 @@ import re
 
 from bs4 import Tag
 from parser.general import GeneralParser
-from .helper import get_heading_level, get_heading_text, get_html_tree_from_url, remove_parenthesis
+from .helper import get_heading_level, get_html_tree_from_url, remove_parenthesis
 
 COMMA_OR_SEMICOLON = re.compile('[,;]')
 
@@ -30,10 +30,11 @@ class PlParser(GeneralParser):
                 text = li.get_text().split(':')
                 lang_name = text[0]
                 lang_code = ''
-                trans_list = re.split(COMMA_OR_SEMICOLON, text[1])
-                for trans in trans_list:
-                    translation = remove_parenthesis(trans).strip()
-                    yield (translation, lang_name, lang_code)
+                if len(text) > 1:
+                    trans_list = re.split(COMMA_OR_SEMICOLON, text[1])
+                    for trans in trans_list:
+                        translation = remove_parenthesis(trans).strip()
+                        yield (translation, lang_name, lang_code)
     
     def generate_translation_tuples(self, soup):
         """
@@ -44,7 +45,7 @@ class PlParser(GeneralParser):
         """
     
         # Find the headword of the page
-        title = soup.find('h1', id='firstHeading')
+        title = soup.find('title')
         title = title.text
 
         # Find the table of contents
@@ -63,7 +64,7 @@ class PlParser(GeneralParser):
             
                 # Grab the language of the headword
                 if level == 2:
-                    text = get_heading_text(element)
+                    text = self.get_heading_text(element)
                     text = text[text.find("(")+1:text.find(")")] # find language within heading
                     if text[:5] == u'język': # remove extra word (most of the time)
                         text = text[6:]
