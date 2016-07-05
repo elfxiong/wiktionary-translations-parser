@@ -29,14 +29,19 @@ class AzParser(GeneralParser):
         # START non-edition-specific
         # this is the table of content which is present in each edition
         toc = soup.find('div', id='mw-content-text')
-
+        
         page_state = {'headword': None,
                   'headword_lang': None,
                   'part_of_speech': ''}
 
+
         pronounce = ''
+
+        headword_element = soup.find('h1', id='titleHeading')
         
-        page_state['headword'] = soup.find('h1', id='firstHeading', class_='firstHeading').text
+        if headword_element is not None:
+
+            page_state['headword'] = headword_element.text
 
         for element in toc.children:
             if isinstance(element, Tag):  # it could be a Tag or a NavigableString
@@ -44,17 +49,14 @@ class AzParser(GeneralParser):
                 # END non-edition-specific
                 # Find the headword language
 
-                if 'style' in element.attrs and element['style'] == 'background:#EEEEFF':
+                if level == 2 and 'id' in element.attrs and element['id'] == 'mwAQ':
 
-                    if element.a is not None:
-                        
-                        page_state['headword_lang'] = element.a.text.replace('dili','').strip()
-                        pronounce = ''
-                        
-                elif element.a is not None and \
-                    'title' in element.a.attrs and 'Kateqoriya:Nitq hissələri' in element.a['title']:
+                    page_state['headword_lang'] = element.text.replace('dili','').strip()
+                    pronounce = ''
+
+                elif level == 3 and 'id' in element.attrs and element['id'] == 'mwAw':
                     
-                    page_state['part_of_speech'] = element.a.text
+                    page_state['part_of_speech'] = element.text
                 
                 elif element.name == 'ul':
 
@@ -64,19 +66,16 @@ class AzParser(GeneralParser):
                         if li.get_text().split(':')[0] == 'Tələffüz':
                             pronounce = li.get_text().split(':')[1].strip()
 
-                elif element.span is not None:
+                elif element.name == 'p':
                     
-                    formatted = BeautifulSoup(element.span.text,'html.parser')
-                    
-                    formatted = formatted.encode_contents(formatter='html')
+                    if  '<div class="NavHead" #FFFFE0">' in element.text:
 
-                    if  b'T\xc9\x99rc&uuml;m\xc9\x99l\xc9\x99r&nbsp;:' in formatted:
-                    
                         for translation, lang, lang_code in self.parse_translation_table(\
                             element.find_next_sibling('div', class_='NavFrame')):
-                        
+
                             if translation == '':
                                 continue
+                            translation = translation.strip()
                             lang = lang.strip()
                             yield (
                                 self.edition, page_state['headword'], page_state['headword_lang'], translation, lang,

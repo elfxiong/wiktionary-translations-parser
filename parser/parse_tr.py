@@ -34,16 +34,20 @@ class TrParser(GeneralParser):
         page_state = {'headword': None,
                       'headword_lang': None,
                       'part_of_speech': None}
-
+        
         pronounce = ''
+        head_word = soup.find('h1', id='titleHeading')
+        if head_word is not None:
+            page_state['headword'] = head_word.text
+            head = True
+
         for element in toc.children:
             if isinstance(element, Tag):  # it could be a Tag or a NavigableString
                 level = self.get_heading_level(element.name)
                 # END non-edition-specific
                 if level == 2:  # it is a header tag
                     # print (self.get_heading_text(element))
-
-                    page_state['headword_lang'] = self.get_heading_text(element.find_next_sibling('div'))
+                    page_state['headword_lang'] = self.get_heading_text(element)
                     page_state['headword_lang'] = page_state['headword_lang'].lstrip('\n')
                     pronounce = ''
                 elif level == 3:
@@ -52,9 +56,6 @@ class TrParser(GeneralParser):
                     bold_word = element.b
                     if not bold_word:
                         continue
-                    if bold_word and head == False:
-                        page_state['headword'] = bold_word.get_text()
-                        head = True
                         # print("headword: ", bold_word.get_text().strip())
                     # Then we found translations
                     if bold_word.text == u"Çeviriler" and head == True:
@@ -62,14 +63,14 @@ class TrParser(GeneralParser):
 
                     if bold_word.text == u"Türk Dilleri" and head == True:
                         translation_table = True
-                elif element.b is not None and 'Söyleniş' in element.b.text:
+                #elif element.b is not None and 'Söyleniş' in element.b.text:
 
-                    temp = element.find_next_sibling
-                    if temp.dl.dd is not None:
-                        pronounce = temp.dl.dd.text
+                #   temp = element.find_next_sibling
+
+                #        pronounce = temp.text
 
                 elif translation_table:
-
+                    
                     for translation, lang, lang_code in self.parse_translation_table(element):
                         if len(translation.split()) >= 2:
                             translation = translation.split()[1]
@@ -88,9 +89,9 @@ class TrParser(GeneralParser):
                         #if translation is '':
                         #    continue
                         yield (
-                            self.edition, page_state['headword'], page_state['headword_lang'].strip(), translation, lang,
+                            self.edition, page_state['headword'], page_state['headword_lang'], translation, lang,
                             lang_code, page_state['part_of_speech'], pronounce)
-
+                        
                     translation_table = False
 
 

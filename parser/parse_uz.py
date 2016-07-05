@@ -31,8 +31,8 @@ class UzParser(GeneralParser):
                       'headword_lang': None,
                       'part_of_speech': ''}
         pronounce = ''
-        head = soup.find('h1', id='firstHeading', class_='firstHeading')
-        if head:
+        head = soup.find('h1', id='titleHeading')
+        if head is not None:
             page_state['headword'] = head.text
 
         for element in toc.children:
@@ -41,10 +41,10 @@ class UzParser(GeneralParser):
                 # END non-edition-specific
                 # Find the headword language
 
-                if 'id' in element.attrs and element.attrs['id'] == 'toc' and 'class' in element.attrs and \
-                                'toccolours' in element.attrs['class']:
+                if level == 1:
 
-                    if element.b is not None:
+                    if element.big is not None:
+
                         page_state['headword_lang'] = remove_parenthesis(element.b.text).strip()
 
                         # Find Part of Speech: Not sure if this works. The only way i've been able to see a correlation between
@@ -52,20 +52,18 @@ class UzParser(GeneralParser):
                         # I don't know if it's working properly
 
                 if level == 2:
-                    if element.font is not None:
-                        page_state['part_of_speech'] = element.font.text
+                    if element.text is not None:
+                        page_state['part_of_speech'] = element.text.strip()
 
 
                 # Find the translation table
                 elif element.name == 'ul':
-
+                    
                     for translation, lang, lang_code in self.parse_translation_table(element):
-
                         yield (
                             self.edition, page_state['headword'], page_state['headword_lang'], translation, lang,
                             lang_code, page_state['part_of_speech'], pronounce)
                     translation_table = False
-
 
 def main():
     parser = UzParser()
