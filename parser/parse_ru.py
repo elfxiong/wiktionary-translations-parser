@@ -53,26 +53,15 @@ class RuParser(GeneralParser):
                 if not translation == '':
                     yield (translation, lang_name, lang_code)
 
-    # parse through an ordered list in the Russian edition of wiktionary
-    def parse_ordered_list_russian2(self, olist):
-        for li in olist.find_all('li'):
-            for href in li.find_all('a'):
-                if href.has_attr('href') and href.has_attr('title'):
-                    if not href['title'] == 'Викисловарь:Условные сокращения' and not href['title'] == 'ВС:ЦИТ':
-                        translation = href['title']
-                        yield translation
-                    
-
-    # parse through an ordered list in the Russian edition of wiktionary                
-    def parse_ordered_list_russian(self, olist):
-        for li in olist.find_all('li'):
-            if not li.get_text() == '':
-                # format the text (specific to RU)
-                text = li.get_text().split(u'◆')[0]
-                text = remove_parenthesis(text)
-                text = re.split(COMMA_SEMI_PERIOD, text)
-                for translations in text:
-                    yield translations
+    def parse_translation_element_russian(self, tre):
+        MAX_LEN = 1
+        text = remove_parenthesis(tre.get_text()).split(u'◆')[0]
+        text = re.split(COMMA_OR_SEMICOLON, text)
+        for trans in text:
+            trans = trans.split(' ')
+            if not len(trans) > MAX_LEN:
+                for tran in trans:
+                    yield tran
 
     # grab and format the part of speech
     def get_pos_russian(self, target):
@@ -95,6 +84,13 @@ class RuParser(GeneralParser):
                 else:
                     text = text[0].strip()
                 return remove_comma_period(text)
+
+    def parse_pronunciation_list_russian(self, ulist):
+        
+        text = ulist.get_text()
+        text = text[text.find('['): text.find(']')+1]
+        return text
+        
 
     def generate_translation_tuples(self, soup):
         """
@@ -142,10 +138,13 @@ class RuParser(GeneralParser):
                     
                     if text == u'Морфологические и синтаксические свойства':
                         page_state['pos_region'] = True
+                        page_state['pro_region'] = False
                     elif text == u'Перевод':
                         page_state['translation_region'] = True
                         page_state['pos_region'] = False
+                        page_state['pro_region'] = False
                     elif text == u'Произношение':
+                        page_state['pronunciation'] = '' # reset previous pronunciation
                         page_state['translation_region'] = False
                         page_state['pro_region'] = True
                         page_state['pos_region'] = False
@@ -153,12 +152,15 @@ class RuParser(GeneralParser):
                         if not page_state['headword_lang'] == u'Русский':
                             page_state['translation_region'] = True
                             page_state['pos_region'] = False
+                            page_state['pro_region'] = False
                         else:
                             page_state['translation_region'] = False
                             page_state['pos_region'] = False
+                            page_state['pro_region'] = False
                     else:
                         page_state['translation_region'] = False
                         page_state['pos_region'] = False
+                        page_state['pro_region'] = False
                         
                 # grab the part of speech
                 elif element.name == 'p' and page_state['pos_region']:
@@ -174,26 +176,32 @@ class RuParser(GeneralParser):
                         
                 # parse through a paragraph to grab translations
                 elif element.name == 'p' and page_state['translation_region']:
-                    translation = element.get_text()
-                    yield (self.edition, page_state['headword'], page_state['headword_lang'], translation.strip(),
-                           u'Русский', 'ru', page_state['part_of_speech'])
+                    for translation in self.parse_translation_element_russian(element):
+                        if translation:
+                            yield (self.edition, page_state['headword'], page_state['headword_lang'], translation.strip(),
+                                   u'Русский', 'ru', page_state['part_of_speech'], page_state['pronunciation'])
                            
                 # parse through an ordered list to grab translations
                 elif element.name == 'ol' and page_state['translation_region']:
-                    for translation in self.parse_ordered_list_russian(element):
-                        yield (self.edition, page_state['headword'], page_state['headword_lang'], translation.strip(),
-                               u'Русский', 'ru', page_state['part_of_speech'])
+                    for li in element.find_all('li'):
+                        if not li.get_text() == '':
+                            for translation in self.parse_translation_element_russian(li):
+                                if translation:
+                                    yield (self.edition, page_state['headword'], page_state['headword_lang'], translation.strip(),
+                                           u'Русский', 'ru', page_state['part_of_speech'], page_state['pronunciation'])
                                        
                 # parse through a table to grab translations
                 elif element.name == 'table' and page_state['translation_region']:
                     for translation, lang, lang_code in self.parse_translation_table_russian(element):
                         yield (self.edition, page_state['headword'], page_state['headword_lang'], 
-                               translation.strip(), lang, lang_code, page_state['part_of_speech'])
+                               translation.strip(), lang, lang_code, page_state['part_of_speech'], page_state['pronunciation'])
+
+                # parse through an unordered list to grab pronunciations
+                elif element.name == 'ul' and page_state['pro_region']:
+                    for pro in self.parse_pronunciation_list_russian(element):
+                        page_state['pronunciation'] = page_state['pronunciation'] + pro
                 else:
                     page_state['translation_region'] = False
-
-        #yield('', '', '', '', '','', '')
-
         
 def main():
     
