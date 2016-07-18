@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 import re
 
-from bs4 import Tag
-from parser.general import GeneralParser
+from bs4 import Tag, BeautifulSoup
+from .general import GeneralParser
 from .helper import get_heading_level, get_html_tree_from_url, remove_parenthesis, remove_comma_period
 
 COMMA_SEMI_PERIOD = re.compile('[,;.]')
@@ -14,15 +14,15 @@ class RuParser(GeneralParser):
         self.edition = 'ru'
     
     tested_url = [
-        "https://ru.wiktionary.org/wiki/-ациj"#,
-       # "https://ru.wiktionary.org/wiki/blood",
-        #"https://ru.wiktionary.org/wiki/flower",
-        #"https://ru.wiktionary.org/wiki/house",
-        #"https://ru.wiktionary.org/wiki/speak",
-        #"https://ru.wiktionary.org/wiki/%D0%B4%D0%BE%D0%BC",
-        #"https://ru.wiktionary.org/wiki/говорить"
+        "https://ru.wiktionary.org/wiki/ас",
+        "https://ru.wiktionary.org/wiki/blood",
+        "https://ru.wiktionary.org/wiki/flower",
+        "https://ru.wiktionary.org/wiki/house",
+        "https://ru.wiktionary.org/wiki/speak",
+        "https://ru.wiktionary.org/wiki/%D0%B4%D0%BE%D0%BC",
+        "https://ru.wiktionary.org/wiki/говорить"
     ]
-        
+
     # parse through a translation table in the Russian edition of Wiktionary
     def parse_translation_table_russian(self, table):
     
@@ -58,6 +58,7 @@ class RuParser(GeneralParser):
         text = remove_parenthesis(tre.get_text()).split(u'◆')[0]
         text = re.split(COMMA_OR_SEMICOLON, text)
         for trans in text:
+            trans = trans.strip()
             trans = trans.split(' ')
             if not len(trans) > MAX_LEN:
                 for tran in trans:
@@ -106,7 +107,7 @@ class RuParser(GeneralParser):
             title = title.text
         else:
             title = ''
-        
+
         # Find the table of contents
         toc = soup.find('div', id='mw-content-text')
         
@@ -129,7 +130,7 @@ class RuParser(GeneralParser):
                     page_state['headword_lang'] = self.get_heading_text(element).strip()
                     page_state['translation_region'] = False
                     page_state['pos_region'] = True 
-
+                    print(page_state['headword_lang'])
                 # Grab the part of speech, always contained in a level 3
                 # sometimes the part of speech is preceded by headword
                 elif level == 3 or level == 4:
@@ -200,9 +201,8 @@ class RuParser(GeneralParser):
                 elif element.name == 'ul' and page_state['pro_region']:
                     for pro in self.parse_pronunciation_list_russian(element):
                         page_state['pronunciation'] = page_state['pronunciation'] + pro
-                else:
-                    page_state['translation_region'] = False
         
+'''     
 def main():
     
     parser = RuParser()
@@ -221,6 +221,6 @@ def main():
         for tup in parser.generate_translation_tuples(soup):
             print(','.join(tup))
 
-'''
+
 if __name__ == '__main__':
     main()
