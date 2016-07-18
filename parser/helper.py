@@ -80,4 +80,4 @@ def remove_all_punctuation(line):
 
 
 def remove_comma_period(line):
-    return re.sub('[,.]', '', line)
+    return re.sub('[,.\n]', '', line)
